@@ -154,10 +154,15 @@
     if (m.lunar) lines += '<div class="pdate"><b>음' + (m.lunar.leap ? "윤" : "") + '</b> ' + m.lunar.y + "/" + pad(m.lunar.m) + "/" + pad(m.lunar.d) + " " + gtxt + '</div>';
     if (m.off != null && !m.unsure) lines += '<div class="pdate"><b>양</b> ' + m.solarY + "/" + pad(m.solarMo) + "/" + pad(m.solarD) + " " + hhmm(m.useH, m.useMi) +
       ' <span class="tag">(지역시 ' + (m.off >= 0 ? "+" : "") + m.off + '분)</span></div>';
-    return '<div class="rcard"><div class="profile-head"><div class="avatar">' + emoji + '</div>' +
+    var ep = c.elements2.pct, domE = SajuEngine.ELEMENTS.reduce(function (a, b) { return ep[b] > ep[a] ? b : a; });
+    var stats = '<div class="hero-stats">' +
+      '<div class="hs"><span class="hs-l">신강 · 신약</span><span class="hs-v">' + c.strength.band + '</span></div>' +
+      '<div class="hs"><span class="hs-l">용신</span><span class="hs-v el-' + c.yongshin.eokbu + '">' + c.yongshin.eokbu + '</span></div>' +
+      '<div class="hs"><span class="hs-l">오행 중심</span><span class="hs-v el-' + domE + '">' + domE + '</span></div></div>';
+    return '<div class="rcard hero-card"><div class="profile-head"><div class="avatar">' + emoji + '</div>' +
       '<div class="profile-info"><div class="profile-name">' + m.name + '</div>' +
       '<div class="profile-nick"><span class="tti">' + tti + '띠</span> · 일간 <b class="el-' + dm.elem + '">' + dm.ko + dm.hanja + '</b> · 일주 ' + c.pillars["일주"] + '(' + c.nickname + ')</div></div></div>' +
-      '<div class="profile-dates">' + lines + '</div></div>';
+      stats + '<div class="profile-dates">' + lines + '</div></div>';
   }
 
   // 원국
@@ -318,12 +323,14 @@
 
   function renderResult(c) {
     var nowY = (new Date()).getFullYear(), now = new Date();
+    var curAge = nowY - c._meta.solarY + 1;   // 세는나이 근사
     iljinState = { y: now.getFullYear(), m: now.getMonth() + 1 };
     var html = renderProfile(c) + renderWonguk(c) + renderRelations(c) + renderGilsin(c) +
       renderAnalysis(c) + renderRelation(c) +
       '<div class="result-grid">' + renderStrength(c) + renderYongshin(c) + '</div>' +
       renderLuck("대운", "大運 · " + c.daeun.direction + " · 대운수 " + c.daeun.daeun_su.number, c.daeun.list.slice().reverse(),
-        function (x) { return x.age + "세"; }, function (x) { return x.stem_ten_star; }) +
+        function (x) { return x.age + "세"; }, function (x) { return x.stem_ten_star; },
+        function (x) { return curAge >= x.age && curAge < x.age + 10; }) +
       renderLuck("연운", "歲運", c.seun.slice().reverse(), function (x) { return x.year; }, null, function (x) { return x.year === nowY; }) +
       renderLuck("월운", c._meta.solarY + "년", c.wolun, function (x) { return x.mlabel; }) +
       renderIljin();

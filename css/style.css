@@ -144,6 +144,11 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .profile-nick{font-size:14px;color:var(--g600);font-weight:600;margin-top:4px;line-height:1.5}
 .profile-nick .tti{color:var(--blue);font-weight:800}
 .profile-nick b{font-weight:800}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.hs{background:var(--g50);border-radius:16px;padding:14px 12px;text-align:center;transition:.15s}
+.hs:hover{background:var(--g100)}
+.hs-l{display:block;font-size:12px;color:var(--g500);font-weight:600;margin-bottom:5px}
+.hs-v{font-size:19px;font-weight:800;letter-spacing:-.02em}
 .profile-dates{margin-top:18px;padding-top:16px;border-top:1px solid var(--g100);display:flex;flex-direction:column;gap:7px}
 .pdate{font-size:13.5px;color:var(--g600);font-weight:500}
 .pdate b{color:#fff;background:var(--g400);font-weight:800;display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;border-radius:7px;font-size:12px;margin-right:8px;padding:0 5px}
@@ -237,7 +242,7 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .lc:hover{transform:translateY(-4px);box-shadow:var(--sh);background:#fff;border-color:var(--g100)}
 .lc-top{font-size:12.5px;font-weight:800;color:var(--g800);line-height:1.2}
 .lc-sub{display:block;font-size:10px;font-weight:700;color:var(--g400);margin-top:1px}
-.lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:4px 0 7px;height:13px;overflow:hidden}
+.lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:5px 0 6px;line-height:1.3;white-space:nowrap}
 .lc-cell{border-radius:11px;padding:8px 0;margin:4px 0;display:flex;align-items:baseline;justify-content:center;gap:2px}
 .lc-ko{font-size:23px;font-weight:800;letter-spacing:-.02em}
 .lc-hj{font-size:12px;opacity:.55;font-weight:700}
@@ -311,4 +316,5 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
   .ilj-grid{gap:4px}.ilj-cell{min-height:52px;padding:6px 2px 7px;border-radius:9px}
   .ilj-g{font-size:11px}.ilj-d{font-size:12px}.ilj-term{font-size:9px}
   .rel-k{min-width:56px}
+  .hero-stats{gap:7px}.hs{padding:12px 6px;border-radius:13px}.hs-v{font-size:15px}.hs-l{font-size:11px}
 }
