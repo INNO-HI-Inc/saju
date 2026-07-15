@@ -1,43 +1,49 @@
-/* 만세력 UI — 포스텔러 스타일. 입력→계산→결과. 브라우저에서 완결. */
+/* 만세력 UI — 토스 테마 · 포스텔러 구조 카피. 브라우저에서 완결. */
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   var gender = "F", LUNAR = null;
 
-  // 음력 변환표 로드(있으면 음력 입력 지원)
   fetch("js/lunar-table.json").then(function (r) { return r.json(); })
     .then(function (j) { LUNAR = j; }).catch(function () { LUNAR = null; });
 
-  // 주요 도시 경도(진태양시 보정용)
-  var CITY = { "서울": 126.98, "서울특별시": 126.98, "부산": 129.08, "대구": 128.60,
-    "인천": 126.71, "광주": 126.85, "대전": 127.38, "울산": 129.31, "세종": 127.29,
-    "수원": 127.03, "제주": 126.53, "춘천": 127.73, "강릉": 128.90, "전주": 127.15,
-    "청주": 127.49, "포항": 129.34, "창원": 128.68, "천안": 127.11, "안동": 128.73,
-    "목포": 126.39, "여수": 127.66, "경주": 129.22, "평양": 125.75, "도쿄": 139.69,
-    "베이징": 116.40, "뉴욕": -74.00, "로스앤젤레스": -118.24 };
+  // 오행/십성 색 (토스 팔레트)
+  var ELEM_HEX = { "목": "#15C47E", "화": "#F04452", "토": "#FF9500", "금": "#8B95A1", "수": "#3182F6" };
+  var TEN_GROUP = { "비견": "비겁", "겁재": "비겁", "식신": "식상", "상관": "식상",
+    "편재": "재성", "정재": "재성", "편관": "관성", "정관": "관성", "편인": "인성", "정인": "인성" };
+  var GROUP_HEX = { "비겁": "#3182F6", "식상": "#15C47E", "재성": "#FF9500", "관성": "#F04452", "인성": "#7C5CFC" };
+  var ANIMAL_EMOJI = { "쥐": "🐭", "소": "🐮", "호랑이": "🐯", "토끼": "🐰", "용": "🐲", "뱀": "🐍",
+    "말": "🐴", "양": "🐑", "원숭이": "🐵", "닭": "🐔", "개": "🐶", "돼지": "🐷" };
 
-  // ── 입력 마스킹 ──
-  function maskDate(v) {
-    v = v.replace(/\D/g, "").slice(0, 8);
+  // 도시 경도(진태양시). name → 경도(°E)
+  var CITY = { "서울": 126.98, "인천": 126.71, "수원": 127.03, "성남": 127.13, "용인": 127.18,
+    "부천": 126.77, "안양": 126.95, "고양": 126.83, "남양주": 127.22, "화성": 126.83, "평택": 127.09,
+    "파주": 126.78, "김포": 126.72, "광명": 126.86, "의정부": 127.03, "춘천": 127.73, "원주": 127.92,
+    "강릉": 128.90, "속초": 128.59, "청주": 127.49, "충주": 127.93, "천안": 127.11, "아산": 127.00,
+    "서산": 126.45, "공주": 127.12, "대전": 127.38, "세종": 127.29, "전주": 127.15, "익산": 126.96,
+    "군산": 126.71, "목포": 126.39, "여수": 127.66, "순천": 127.49, "광주": 126.85, "포항": 129.34,
+    "경주": 129.22, "구미": 128.34, "안동": 128.73, "창원": 128.68, "김해": 128.89, "진주": 128.11,
+    "양산": 129.04, "거제": 128.62, "통영": 128.42, "부산": 129.08, "대구": 128.60, "울산": 129.31,
+    "제주": 126.53, "서귀포": 126.56, "평양": 125.75, "개성": 126.55,
+    "도쿄": 139.69, "오사카": 135.50, "베이징": 116.40, "상하이": 121.47, "홍콩": 114.17,
+    "뉴욕": -74.00, "로스앤젤레스": -118.24, "런던": -0.13, "파리": 2.35, "시드니": 151.21,
+    "방콕": 100.50, "싱가포르": 103.82, "하노이": 105.85, "타이베이": 121.56 };
+  function cityOffset(name) {
+    var lon = CITY[(name || "").trim()];
+    if (lon == null) return null;
+    return Math.round((lon - 135) * 4);
+  }
+
+  // ── 마스킹 ──
+  function maskDate(v) { v = v.replace(/\D/g, "").slice(0, 8);
     if (v.length >= 5) return v.slice(0, 4) + "/" + v.slice(4, 6) + "/" + v.slice(6);
-    if (v.length >= 3) return v.slice(0, 4) + "/" + v.slice(4);
-    return v;
-  }
-  function maskTime(v) {
-    v = v.replace(/\D/g, "").slice(0, 4);
-    if (v.length >= 3) return v.slice(0, 2) + ":" + v.slice(2);
-    return v;
-  }
-  $("birthday").addEventListener("input", function (e) { e.target.value = maskDate(e.target.value); validate(); });
-  $("birthtime").addEventListener("input", function (e) { e.target.value = maskTime(e.target.value); validate(); });
+    if (v.length >= 3) return v.slice(0, 4) + "/" + v.slice(4); return v; }
+  function maskTime(v) { v = v.replace(/\D/g, "").slice(0, 4);
+    if (v.length >= 3) return v.slice(0, 2) + ":" + v.slice(2); return v; }
+  $("birthday").addEventListener("change", validate);
+  $("birthtime").addEventListener("change", validate);
   $("name").addEventListener("input", validate);
-  $("hmUnsure").addEventListener("change", function () {
-    $("birthtime").disabled = this.checked;
-    if (this.checked) $("birthtime").value = "";
-    validate();
-  });
-
-  // 성별
+  $("hmUnsure").addEventListener("change", function () { $("birthtime").disabled = this.checked; if (this.checked) $("birthtime").value = ""; validate(); });
   document.querySelectorAll(".seg-btn").forEach(function (b) {
     b.addEventListener("click", function () {
       document.querySelectorAll(".seg-btn").forEach(function (x) { x.classList.remove("on"); });
@@ -45,51 +51,71 @@
     });
   });
 
-  // ── 음력→양력 ──
-  function addDays(ymd, n) {
-    var dt = new Date(Date.UTC(ymd[0], ymd[1] - 1, ymd[2]));
-    dt.setUTCDate(dt.getUTCDate() + n);
-    return [dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()];
+  // ── 도시 자동완성 ──
+  var cityNames = Object.keys(CITY);
+  function renderCityHint() {
+    var off = cityOffset($("city").value), h = $("cityHint");
+    if (off == null) { h.textContent = $("city").value ? "목록에 없는 도시 — 보정 없이 계산됩니다" : ""; h.className = "city-hint gray"; }
+    else { h.textContent = "진태양시 " + (off >= 0 ? "+" : "") + off + "분 보정"; h.className = "city-hint"; }
   }
+  function showCityList() {
+    var q = $("city").value.trim(), ul = $("cityList");
+    var matches = cityNames.filter(function (n) { return q === "" ? false : n.indexOf(q) === 0 || n.indexOf(q) >= 0; }).slice(0, 8);
+    if (!matches.length) { ul.classList.remove("show"); return; }
+    ul.innerHTML = matches.map(function (n) {
+      var o = cityOffset(n); return '<li data-city="' + n + '">' + n + '<span class="off">' + (o >= 0 ? "+" : "") + o + '분</span></li>'; }).join("");
+    ul.classList.add("show");
+  }
+  $("city").addEventListener("input", function () { showCityList(); renderCityHint(); });
+  $("city").addEventListener("focus", showCityList);
+  $("city").addEventListener("blur", function () { setTimeout(function () { $("cityList").classList.remove("show"); }, 180); });
+  $("cityList").addEventListener("mousedown", function (e) {
+    var li = e.target.closest("li"); if (!li) return;
+    $("city").value = li.dataset.city; $("cityList").classList.remove("show"); renderCityHint();
+  });
+
+  // ── 음↔양 ──
+  function ymdUTC(a) { return Date.UTC(a[0], a[1] - 1, a[2]); }
+  function addDays(ymd, n) { var dt = new Date(Date.UTC(ymd[0], ymd[1] - 1, ymd[2])); dt.setUTCDate(dt.getUTCDate() + n);
+    return [dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()]; }
   function lunarToSolar(y, m, d, isLeap) {
     if (!LUNAR || !LUNAR[y]) return null;
-    var t = LUNAR[y], ny = t.ny.split("-").map(Number), L = t.leap, md = t.md, off = 0;
-    var order = [];
+    var t = LUNAR[y], ny = t.ny.split("-").map(Number), L = t.leap, md = t.md, off = 0, order = [];
     for (var x = 1; x <= 12; x++) { order.push([x, false]); if (L === x) order.push([x, true]); }
     for (var i = 0; i < order.length && i < md.length; i++) {
-      if (order[i][0] === m && order[i][1] === isLeap) return addDays(ny, off + d - 1);
-      off += md[i];
+      if (order[i][0] === m && order[i][1] === isLeap) return addDays(ny, off + d - 1); off += md[i]; }
+    return null;
+  }
+  function solarToLunar(y, mo, d) {
+    if (!LUNAR) return null;
+    var tgt = Date.UTC(y, mo - 1, d);
+    for (var Y = y; Y >= y - 1; Y--) {
+      var t = LUNAR[Y]; if (!t) continue;
+      var ny = ymdUTC(t.ny.split("-").map(Number));
+      if (tgt < ny) continue;
+      var nx = LUNAR[Y + 1], nyN = nx ? ymdUTC(nx.ny.split("-").map(Number)) : ny + 400 * 86400000;
+      if (tgt >= nyN) continue;
+      var off = Math.round((tgt - ny) / 86400000), L = t.leap, md = t.md, order = [], acc = 0;
+      for (var x = 1; x <= 12; x++) { order.push([x, false]); if (L === x) order.push([x, true]); }
+      for (var i = 0; i < order.length; i++) { if (off < acc + md[i]) return { y: Y, m: order[i][0], d: off - acc + 1, leap: order[i][1] }; acc += md[i]; }
     }
     return null;
   }
 
-  // ── 진태양시 보정 ──
-  function applySolarTime(y, mo, d, h, mi, city) {
-    var lon = CITY[(city || "").trim()];
-    if (lon == null) return { arr: [y, mo, d, h, mi], off: null };
-    var off = Math.round((lon - 135) * 4); // 분
-    var dt = new Date(Date.UTC(y, mo - 1, d, h, mi));
-    dt.setUTCMinutes(dt.getUTCMinutes() + off);
-    return { arr: [dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes()], off: off };
-  }
-
   // ── 검증 ──
   function parseInputs() {
-    var bd = $("birthday").value.replace(/\D/g, "");
-    var bt = $("birthtime").value.replace(/\D/g, "");
-    var unsure = $("hmUnsure").checked;
-    if (bd.length !== 8) return null;
-    var y = +bd.slice(0, 4), mo = +bd.slice(4, 6), d = +bd.slice(6, 8);
-    if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1901 || y > 2099) return null;
+    var dv = $("birthday").value, tv = $("birthtime").value, unsure = $("hmUnsure").checked;
+    if (!dv) return null;
+    var dp = dv.split("-"), y = +dp[0], mo = +dp[1], d = +dp[2];
+    if (!(y >= 1901 && y <= 2099) || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
     var h = 12, mi = 0;
-    if (!unsure) { if (bt.length !== 4) return null; h = +bt.slice(0, 2); mi = +bt.slice(2); if (h > 23 || mi > 59) return null; }
+    if (!unsure) { if (!tv) return null; var tp = tv.split(":"); h = +tp[0]; mi = +tp[1]; if (isNaN(h) || isNaN(mi)) return null; }
     return { y: y, mo: mo, d: d, h: h, mi: mi, unsure: unsure };
   }
-  function validate() {
-    $("go").disabled = !parseInputs();
-  }
+  function validate() { $("go").disabled = !parseInputs(); }
 
-  // ── 계산 실행 ──
+  // ── 계산 ──
+  var lastChart = null;
   $("go").addEventListener("click", function () {
     var p = parseInputs(); if (!p) return;
     var cal = $("calendar").value, y = p.y, mo = p.mo, d = p.d;
@@ -98,25 +124,44 @@
       if (!sol) { toast("해당 음력 날짜를 찾을 수 없어요"); return; }
       y = sol[0]; mo = sol[1]; d = sol[2];
     }
-    var sc = applySolarTime(y, mo, d, p.h, p.mi, $("city").value);
-    var a = sc.arr;
+    var off = cityOffset($("city").value), useY = y, useMo = mo, useD = d, useH = p.h, useMi = p.mi;
+    if (off != null && !p.unsure) {
+      var dt = new Date(Date.UTC(y, mo - 1, d, p.h, p.mi)); dt.setUTCMinutes(dt.getUTCMinutes() + off);
+      useY = dt.getUTCFullYear(); useMo = dt.getUTCMonth() + 1; useD = dt.getUTCDate(); useH = dt.getUTCHours(); useMi = dt.getUTCMinutes();
+    }
     var chart;
-    try { chart = SajuEngine.buildChart(a[0], a[1], a[2], a[3], a[4], gender, $("lateZi").checked); }
+    try { chart = SajuEngine.buildChart(useY, useMo, useD, useH, useMi, gender, $("lateZi").checked); }
     catch (e) { toast("계산 오류: " + e.message); return; }
-    chart._meta = { name: $("name").value || "이름 없음", cal: cal, solarOff: sc.off,
-      inputSolar: y + "-" + pad(mo) + "-" + pad(d), city: $("city").value };
-    lastChart = chart;
-    renderResult(chart);
-    showScreen("result");
+    var lun = solarToLunar(y, mo, d);
+    chart._meta = { name: $("name").value || "이름 없음", gender: gender === "M" ? "남자" : "여자",
+      cal: cal, solarY: y, solarMo: mo, solarD: d, h: p.h, mi: p.mi, unsure: p.unsure,
+      city: $("city").value, off: off, useH: useH, useMi: useMi, lunar: lun };
+    lastChart = chart; renderResult(chart); showScreen("result");
   });
 
-  // ── 결과 렌더 ──
-  var lastChart = null;
-  function bigCell(o) {
-    return '<div class="wg-cell bg-' + o.elem + '"><div class="wg-big el-' + o.elem + '">' +
-      o.ko + '<span class="hj">' + o.hanja + '</span></div><div class="wg-sub el-' + o.elem + '">' +
-      o.sign + o.elem + '</div></div>';
+  // ══════ 렌더 ══════
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function hhmm(h, m) { return pad(h) + ":" + pad(m); }
+
+  // 프로필
+  function renderProfile(c) {
+    var dm = c.day_master, m = c._meta, ch = c.chart;
+    var emoji = ANIMAL_EMOJI[ch.day.branch.animal] || "☯";
+    var gtxt = m.gender + (m.city ? " · " + m.city : "");
+    var lines = '<div class="pdate"><b>양</b> ' + m.solarY + "/" + pad(m.solarMo) + "/" + pad(m.solarD) +
+      (m.unsure ? " 시간모름" : " " + hhmm(m.h, m.mi)) + " " + gtxt + '</div>';
+    if (m.lunar) lines += '<div class="pdate"><b>음' + (m.lunar.leap ? "윤" : "") + '</b> ' + m.lunar.y + "/" + pad(m.lunar.m) + "/" + pad(m.lunar.d) + " " + gtxt + '</div>';
+    if (m.off != null && !m.unsure) lines += '<div class="pdate"><b>양</b> ' + m.solarY + "/" + pad(m.solarMo) + "/" + pad(m.solarD) + " " + hhmm(m.useH, m.useMi) +
+      ' <span class="tag">(지역시 ' + (m.off >= 0 ? "+" : "") + m.off + '분)</span></div>';
+    return '<div class="rcard"><div class="profile-head"><div class="avatar">' + emoji + '</div>' +
+      '<div><div class="profile-name">' + m.name + '</div><div class="profile-nick el-' + dm.elem + '">' +
+      c.pillars["일주"] + '(' + c.nickname + ') · 일간 ' + dm.ko + dm.hanja + '</div></div></div>' +
+      '<div class="profile-dates">' + lines + '</div></div>';
   }
+
+  // 원국
+  function bigCell(o) { return '<div class="wg-cell bg-' + o.elem + '"><div class="wg-big el-' + o.elem + '">' +
+    o.ko + '<span class="hj">' + o.hanja + '</span></div><div class="wg-sub el-' + o.elem + '">' + o.sign + o.elem + '</div></div>'; }
   function renderWonguk(c) {
     var order = ["hour", "day", "month", "year"], head = { hour: "생시", day: "생일", month: "생월", year: "생년" }, ch = c.chart;
     var h = '<div class="rcard"><h2>사주 원국 <span class="mut">命式</span></h2><div class="wonguk-grid">';
@@ -130,109 +175,134 @@
     h += '<div class="wg-rowlabel">12신살</div>'; order.forEach(function (k) { h += '<div class="wg-plain">' + ch[k].twelve_sin + '</div>'; });
     return h + '</div></div>';
   }
+
+  // 도넛
+  function donut(items, centerText, centerColor) {
+    var circ = 2 * Math.PI * 60, off = 0;
+    var s = '<svg class="donut" viewBox="0 0 150 150"><circle cx="75" cy="75" r="60" fill="none" stroke="#F2F4F6" stroke-width="22"/>';
+    items.forEach(function (it) { if (it.pct <= 0) return; var len = circ * it.pct / 100;
+      s += '<circle cx="75" cy="75" r="60" fill="none" stroke="' + it.color + '" stroke-width="22" stroke-dasharray="' + len + ' ' + (circ - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 75 75)"/>'; off += len; });
+    s += '<text x="75" y="75" text-anchor="middle" dominant-baseline="central" class="donut-center" fill="' + centerColor + '">' + centerText + '</text></svg>';
+    return s;
+  }
+  function elemLevel(p) { return p === 0 ? "부족" : p <= 12.5 ? "적정" : p <= 25 ? "발달" : "과다"; }
+  function renderAnalysis(c) {
+    var ep = c.elements2.pct, ELS = SajuEngine.ELEMENTS;
+    var domE = ELS.reduce(function (a, b) { return ep[b] > ep[a] ? b : a; });
+    var eItems = ELS.map(function (e) { return { pct: ep[e], color: ELEM_HEX[e] }; });
+    var eRows = ELS.map(function (e) { var lv = elemLevel(ep[e]);
+      return '<tr><td class="el-' + e + '">' + e + '</td><td>' + ep[e] + '%<span class="tag-lv lv-' + lv + '">' + lv + '</span></td></tr>'; }).join("");
+    var ts = c.tenstar, TEN = ["비견", "겁재", "식신", "상관", "편재", "정재", "편관", "정관", "편인", "정인"];
+    var tItems = TEN.map(function (t) { return { pct: ts.pct[t], color: GROUP_HEX[TEN_GROUP[t]] }; });
+    var tRows = TEN.filter(function (t) { return ts.pct[t] > 0; }).map(function (t) {
+      return '<tr><td>' + t + '</td><td>' + ts.pct[t] + '%</td></tr>'; }).join("");
+
+    var left = '<div class="donut-wrap">' + donut(eItems, domE, ELEM_HEX[domE]) + '<div class="donut-cap">오행 중심 · ' + domE + '</div>' +
+      '<table class="pct-table">' + eRows + '</table></div>';
+    var right = '<div class="donut-wrap">' + donut(tItems, ts.dominant, GROUP_HEX[TEN_GROUP[ts.dominant]]) + '<div class="donut-cap">십성 중심 · ' + ts.dominant + '</div>' +
+      '<table class="pct-table">' + tRows + '</table></div>';
+    return '<div class="rcard"><h2>오행 · 십성 분석</h2><div class="analysis-grid">' + left + right + '</div></div>';
+  }
+
+  // 오행 관계도(펜타곤)
+  function renderRelation(c) {
+    var g = c.groups; // [비겁,식상,재성,관성,인성]
+    var cx = 210, cy = 195, R = 128, ang = [-90, -18, 54, 126, 198];
+    var pos = ang.map(function (a) { var r = a * Math.PI / 180; return [cx + R * Math.cos(r), cy + R * Math.sin(r)]; });
+    var s = '<svg class="relation" viewBox="0 0 420 400">';
+    // 극(剋) 대각선 — red
+    var kg = [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]];
+    kg.forEach(function (e) { s += '<line x1="' + pos[e[0]][0] + '" y1="' + pos[e[0]][1] + '" x2="' + pos[e[1]][0] + '" y2="' + pos[e[1]][1] + '" stroke="#F04452" stroke-width="1.5" opacity=".5"/>'; });
+    // 생(生) 둘레 — blue
+    for (var i = 0; i < 5; i++) { var j = (i + 1) % 5;
+      s += '<line x1="' + pos[i][0] + '" y1="' + pos[i][1] + '" x2="' + pos[j][0] + '" y2="' + pos[j][1] + '" stroke="#3182F6" stroke-width="2" opacity=".55"/>'; }
+    // 노드
+    g.forEach(function (n, i) { var col = ELEM_HEX[n.elem];
+      s += '<g class="rel-node"><circle cx="' + pos[i][0] + '" cy="' + pos[i][1] + '" r="40" fill="#fff" stroke="' + col + '" stroke-width="2.5"/>' +
+        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] - 8) + '" text-anchor="middle" font-size="15" fill="' + col + '">' + n.elem + '</text>' +
+        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] + 8) + '" text-anchor="middle" font-size="11" fill="#8B95A1">' + n.key + '</text>' +
+        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] + 24) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#191F28">' + n.pct + '%</text></g>'; });
+    s += '</svg>';
+    return '<div class="rcard"><h2>오행 관계도 <span class="mut">生 · 剋</span></h2>' + s +
+      '<div class="rel-legend"><span class="g">→ 생(生)</span><span class="k">→ 극(剋)</span></div></div>';
+  }
+
+  // 신강약
   var DIST = [5, 16, 19.5, 10, 25, 13, 5, 1.5];
   function strengthGraph(bi) {
     var W = 460, H = 176, pad = 26, n = DIST.length, max = Math.max.apply(null, DIST), bands = SajuEngine.BANDS;
     var xs = function (i) { return pad + (W - 2 * pad) * i / (n - 1); }, ys = function (v) { return H - 34 - (H - 58) * v / max; };
     var pts = DIST.map(function (v, i) { return xs(i) + "," + ys(v); }).join(" ");
     var s = '<svg class="str-graph" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">';
-    DIST.forEach(function (v, i) { s += '<rect x="' + (xs(i) - 19) + '" y="22" width="38" height="' + (H - 56) + '" rx="6" fill="#f4f2ee"/>'; });
-    s += '<polyline points="' + pts + '" fill="none" stroke="#33302b" stroke-width="2.4" stroke-linejoin="round"/>';
-    s += '<circle cx="' + xs(bi) + '" cy="' + ys(DIST[bi]) + '" r="6" fill="#1c1a17"/>';
+    DIST.forEach(function (v, i) { s += '<rect x="' + (xs(i) - 19) + '" y="22" width="38" height="' + (H - 56) + '" rx="6" fill="#F2F4F6"/>'; });
+    s += '<polyline points="' + pts + '" fill="none" stroke="#4E5968" stroke-width="2.4" stroke-linejoin="round"/>';
+    s += '<circle cx="' + xs(bi) + '" cy="' + ys(DIST[bi]) + '" r="6" fill="#3182F6"/>';
     s += '<text class="band-me" x="' + xs(bi) + '" y="' + (ys(DIST[bi]) - 11) + '" text-anchor="middle">나</text>';
     bands.forEach(function (b, i) { s += '<text class="band-label" x="' + xs(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + b + '</text>'; });
     return s + '</svg>';
   }
   function renderStrength(c) {
-    var s = c.strength, bi = s.band_index, pct = (DIST[bi] / DIST.reduce(function (a, b) { return a + b; }, 0) * 100).toFixed(2);
+    var s = c.strength, bi = s.band_index, pct = (DIST[bi] / DIST.reduce(function (a, b) { return a + b; }, 0) * 100).toFixed(1);
     var chips = Object.keys(s.deuk).map(function (k) { return '<span class="deuk ' + (s.deuk[k] ? "on" : "") + '">' + (s.deuk[k] ? "●" : "○") + " " + k + '</span>'; }).join("");
-    var el = c.elements.count, bars = SajuEngine.ELEMENTS.map(function (e) { return '<div class="eb bg-' + e + ' el-' + e + '">' + e + " " + Math.round(el[e]) + '</div>'; }).join("");
     return '<div class="rcard"><h2>신강 / 신약 지수</h2><div class="deuk-row">' + chips + '</div>' +
-      '<div class="str-msg"><b>' + s.band + '</b> 사주입니다. 이 유형은 약 <b>' + pct + '%</b>.</div>' +
-      strengthGraph(bi) + '<div class="elem-bars">' + bars + '</div></div>';
+      '<div class="str-msg"><b>' + s.band + '</b> 사주입니다. 이 유형은 약 <b>' + pct + '%</b>.</div>' + strengthGraph(bi) + '</div>';
   }
   function renderYongshin(c) {
     var y = c.yongshin;
     function it(t, e) { return '<div class="yong-item"><div class="yong-badge bg-' + e + ' el-' + e + '">' + e + '</div><div><div class="t">' + t + '</div><div class="v el-' + e + '">' + e + '</div></div></div>'; }
     return '<div class="rcard"><h2>용신 <span class="mut">用神</span></h2><div class="yong-list">' + it("조후용신", y.johu) + it("억부용신", y.eokbu) + '</div></div>';
   }
-  function luckCard(x, isNow) {
-    return '<div class="luck-card ' + (isNow ? "luck-now" : "") + '"><div class="luck-age">' + (x.age != null ? x.age + "세" : x.year) + '</div>' +
+
+  // 대운/세운/월운
+  function luckCard(x, isNow, label) {
+    return '<div class="luck-card ' + (isNow ? "luck-now" : "") + '"><div class="luck-age">' + label + '</div>' +
       '<div class="luck-ten">' + x.stem_ten_star + '</div><div class="luck-box">' +
       '<div class="luck-h bg-' + x.stem_elem + ' el-' + x.stem_elem + '">' + x.ganji.charAt(0) + '<span class="hj">' + x.ganji_hanja.charAt(0) + '</span></div>' +
       '<div class="luck-b bg-' + x.branch_elem + ' el-' + x.branch_elem + '">' + x.ganji.charAt(1) + '<span class="hj">' + x.ganji_hanja.charAt(1) + '</span></div></div>' +
       '<div class="luck-meta">' + x.branch_ten_star + '<br>' + x.twelve_life + '</div></div>';
   }
-  function renderDaeun(c) {
-    var d = c.daeun, list = d.list.slice().reverse();
-    return '<div class="rcard"><h2>대운 <span class="mut">大運 · ' + d.direction + ' · 대운수 ' + d.daeun_su.number + '</span></h2><div class="luck-scroll">' +
-      list.map(function (x) { return luckCard(x, false); }).join("") + '</div></div>';
+  function renderLuck(title, mut, list, labelFn, nowFn) {
+    return '<div class="rcard"><h2>' + title + ' <span class="mut">' + mut + '</span></h2><div class="luck-scroll">' +
+      list.map(function (x) { return luckCard(x, nowFn ? nowFn(x) : false, labelFn(x)); }).join("") + '</div></div>';
   }
-  function renderSeun(c) {
-    var nowY = (new Date()).getFullYear(), list = c.seun.slice().reverse();
-    return '<div class="rcard"><h2>세운 <span class="mut">歲運 · 연운</span></h2><div class="luck-scroll">' +
-      list.map(function (x) { return luckCard(x, x.year === nowY); }).join("") + '</div></div>';
-  }
+
   function renderResult(c) {
-    var dm = c.day_master, p = c.pillars, m = c._meta;
-    var offTxt = m.solarOff != null ? " · 진태양시 " + (m.solarOff >= 0 ? "+" : "") + m.solarOff + "분" : "";
-    var html = '<div class="summary"><span class="dm el-' + dm.elem + '">' + m.name + ' · 일간 ' + dm.ko + dm.hanja + ' (' + dm.sign + dm.elem + ')</span>' +
-      '<span class="palja">' + p["년주"] + " · " + p["월주"] + " · " + p["일주"] + " · " + p["시주"] +
-      "　|　" + (m.cal === "S" ? "양력" : "음력") + " " + m.inputSolar + offTxt + '</span></div>';
-    html += renderWonguk(c)
-      + '<div class="result-grid">' + renderStrength(c) + renderYongshin(c) + '</div>'
-      + renderDaeun(c) + renderSeun(c);
-    html += '<div class="rfoot">브라우저에서 즉시 계산 · 절기 천문계산 · 신강약/용신은 유파별 보정 가능</div>';
-    $("result").innerHTML = html;
-    $("result").scrollTop = 0;
+    var nowY = (new Date()).getFullYear();
+    var html = renderProfile(c) + renderWonguk(c) + renderAnalysis(c) + renderRelation(c) +
+      '<div class="result-grid">' + renderStrength(c) + renderYongshin(c) + '</div>' +
+      renderLuck("대운", "大運 · " + c.daeun.direction + " · 대운수 " + c.daeun.daeun_su.number, c.daeun.list.slice().reverse(), function (x) { return x.age + "세"; }) +
+      renderLuck("연운", "歲運", c.seun.slice().reverse(), function (x) { return x.year; }, function (x) { return x.year === nowY; }) +
+      renderLuck("월운", c._meta.solarY + "년", c.wolun, function (x) { return x.mlabel; });
+    html += '<div class="rfoot">브라우저에서 즉시 계산 · 절기 로컬 천문계산 · 신강약/용신은 유파별 보정 대상</div>';
+    $("result").innerHTML = html; window.scrollTo(0, 0);
   }
 
   // ── 화면/저장 ──
-  function showScreen(which) {
-    $("inputScreen").classList.toggle("hidden", which !== "input");
-    $("resultScreen").classList.toggle("hidden", which !== "result");
-    window.scrollTo(0, 0);
-  }
+  function showScreen(w) { $("inputScreen").classList.toggle("hidden", w !== "input"); $("resultScreen").classList.toggle("hidden", w !== "result"); window.scrollTo(0, 0); }
   $("backBtn").addEventListener("click", function () { showScreen("input"); });
+  function currentForm() { return { name: $("name").value, gender: gender, calendar: $("calendar").value,
+    birthday: $("birthday").value, birthtime: $("birthtime").value, hmUnsure: $("hmUnsure").checked, lateZi: $("lateZi").checked, city: $("city").value }; }
   $("saveBtn").addEventListener("click", function () {
     if (!lastChart) return;
     var saved = JSON.parse(localStorage.getItem("saju_saved") || "[]");
-    saved.unshift({ name: lastChart._meta.name, form: currentForm(), ts: Date.now() });
-    localStorage.setItem("saju_saved", JSON.stringify(saved.slice(0, 20)));
-    toast("저장했어요");
+    saved.unshift({ name: lastChart._meta.name, form: currentForm() });
+    localStorage.setItem("saju_saved", JSON.stringify(saved.slice(0, 20))); toast("저장했어요");
   });
-  function currentForm() {
-    return { name: $("name").value, gender: gender, calendar: $("calendar").value,
-      birthday: $("birthday").value, birthtime: $("birthtime").value,
-      hmUnsure: $("hmUnsure").checked, lateZi: $("lateZi").checked, city: $("city").value };
-  }
-  $("loadBtn").addEventListener("click", function () {
+  function doLoad() {
     var saved = JSON.parse(localStorage.getItem("saju_saved") || "[]");
     if (!saved.length) { toast("저장된 만세력이 없어요"); return; }
     var s = saved[0], f = s.form;
-    $("name").value = f.name; $("calendar").value = f.calendar;
-    $("birthday").value = f.birthday; $("birthtime").value = f.birthtime;
-    $("hmUnsure").checked = f.hmUnsure; $("lateZi").checked = f.lateZi; $("city").value = f.city;
-    gender = f.gender;
+    $("name").value = f.name; $("calendar").value = f.calendar; $("birthday").value = f.birthday; $("birthtime").value = f.birthtime;
+    $("hmUnsure").checked = f.hmUnsure; $("lateZi").checked = f.lateZi; $("city").value = f.city; gender = f.gender;
     document.querySelectorAll(".seg-btn").forEach(function (b) { b.classList.toggle("on", b.dataset.g === gender); });
-    validate(); toast("‘" + s.name + "’ 불러옴");
-    $("go").click();
-  });
-
-  // 네비 저장버튼 = 불러오기, 12간지 시간표 안내
-  var lb2 = $("loadBtn2"); if (lb2) lb2.addEventListener("click", function () { $("loadBtn").click(); });
-  var gb = $("ganjiBtn"); if (gb) gb.addEventListener("click", function () {
-    toast("자 23~01 · 축 01~03 · 인 03~05 · 묘 05~07 · 진 07~09 · 사 09~11 · 오 11~13 · 미 13~15 · 신 15~17 · 유 17~19 · 술 19~21 · 해 21~23");
-  });
+    renderCityHint(); validate(); showScreen("input"); toast("‘" + s.name + "’ 불러옴"); $("go").click();
+  }
+  $("loadBtn").addEventListener("click", doLoad);
+  var lb2 = $("loadBtn2"); if (lb2) lb2.addEventListener("click", doLoad);
+  var gb = $("ganjiBtn"); if (gb) gb.addEventListener("click", function () { toast("자 23~01 · 축 01~03 · 인 03~05 · 묘 05~07 · 진 07~09 · 사 09~11 · 오 11~13 · 미 13~15 · 신 15~17 · 유 17~19 · 술 19~21 · 해 21~23"); });
 
   var toastTimer;
-  function toast(msg) {
-    var t = $("toast"); t.textContent = msg; t.classList.add("show");
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
-  }
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200); }
 
-  // 기본값(레퍼런스 사주) — 바로 체험되게
-  $("birthday").value = "1998/06/08"; $("birthtime").value = "10:00";
   validate();
 })();

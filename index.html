@@ -7,6 +7,7 @@
 <meta name="description" content="생년월일시로 사주 원국·신강약·용신·대운을 즉시 계산합니다. 브라우저에서 바로 처리(서버 전송 없음).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%AF%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/toss/tossface@main/dist/tossface.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -27,7 +28,7 @@
   <!-- ① 입력 -->
   <section class="screen" id="inputScreen">
     <div class="hero">
-      <h1 class="h1">사주 만세력</h1>
+      <h1 class="h1">사주 <span class="accent">만세력</span></h1>
       <p class="hero-sub">생년월일시만 입력하면 원국·신강약·용신·대운·세운까지 한 번에.</p>
     </div>
 
@@ -48,10 +49,12 @@
 
         <div class="field">
           <label class="flabel" for="city">도시 <span class="lopt">선택 · 진태양시 보정</span></label>
-          <div class="search-wrap">
-            <input class="tinput" type="text" id="city" placeholder="예: 서울">
+          <div class="search-wrap" id="cityWrap">
+            <input class="tinput" type="text" id="city" placeholder="예: 서울" autocomplete="off">
             <span class="mag-ico">⌕</span>
+            <ul class="city-list" id="cityList"></ul>
           </div>
+          <div class="city-hint" id="cityHint"></div>
         </div>
 
         <div class="field span2">
@@ -68,8 +71,8 @@
               </select>
               <span class="chev">▾</span>
             </div>
-            <input class="tinput date" type="text" id="birthday" inputmode="numeric" placeholder="YYYY/MM/DD">
-            <input class="tinput time" type="text" id="birthtime" inputmode="numeric" placeholder="HH:MM">
+            <input class="tinput date" type="date" id="birthday" value="1998-06-08" min="1901-01-01" max="2099-12-31">
+            <input class="tinput time" type="time" id="birthtime" value="10:00">
           </div>
           <div class="opt-row">
             <label class="radio"><input type="checkbox" id="hmUnsure"><span class="dot"></span>시간 모름</label>

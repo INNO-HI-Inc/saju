@@ -266,6 +266,83 @@
     return out;
   }
 
+  // ════════ 분석(오행%/십성%/관계도/별명/월운) ════════
+  var COLOR={목:"푸른",화:"붉은",토:"노란",금:"하얀",수:"검은"};
+  function nickname(si,bi){ return COLOR[S_EL[si%10]]+" "+B_ANI[bi%12]; }
+
+  var TEN_ORDER=["비견","겁재","식신","상관","편재","정재","편관","정관","편인","정인"];
+  function elemPct(pil){
+    var c={}; ELEMENTS.forEach(function(e){c[e]=0;});
+    ["year","month","day","hour"].forEach(function(k){ c[pil[k].stem_elem]++; c[pil[k].branch_elem]++; });
+    var pct={}; ELEMENTS.forEach(function(e){ pct[e]=c[e]/8*100; });
+    return {count:c, pct:pct};
+  }
+  function tenstarStats(pil,dmI){
+    var counts={}; TEN_ORDER.forEach(function(t){counts[t]=0;});
+    ["year","month","day","hour"].forEach(function(k){
+      var ts=(k==="day")?"비견":tenStar(dmI,pil[k].stem_idx);
+      counts[ts]++; counts[branchTenStar(dmI,pil[k].branch_idx)]++;
+    });
+    var pct={},dom="비견",max=-1;
+    TEN_ORDER.forEach(function(t){ pct[t]=counts[t]/8*100; if(counts[t]>max){max=counts[t];dom=t;} });
+    return {counts:counts, pct:pct, dominant:dom};
+  }
+  // 오행 관계도(일간 기준 5그룹 %)
+  function elemGroups(pil,dmElem){
+    var pct=elemPct(pil).pct;
+    var iGen=GEN[dmElem], iCon=CON[dmElem];
+    var genMe=ELEMENTS.filter(function(e){return GEN[e]===dmElem;})[0];
+    var conMe=ELEMENTS.filter(function(e){return CON[e]===dmElem;})[0];
+    return [
+      {key:"비겁",elem:dmElem,pct:pct[dmElem]},
+      {key:"식상",elem:iGen,pct:pct[iGen]},
+      {key:"재성",elem:iCon,pct:pct[iCon]},
+      {key:"관성",elem:conMe,pct:pct[conMe]},
+      {key:"인성",elem:genMe,pct:pct[genMe]}
+    ];
+  }
+  // 월운: 특정 연도의 12개월 간지(절기월). 그 해 년간 기준 월두법.
+  function wolunList(pil,dmI,year){
+    var yi60=mod(year-1984,60), yStem=yi60%10;
+    var IPWOL={0:2,5:2,1:4,6:4,2:6,7:6,3:8,8:8,4:0,9:0};
+    var ipwol=IPWOL[yStem], out=[];
+    for(var i=0;i<12;i++){
+      var bi=mod(2+i,12), si=mod(ipwol+i,10);
+      var monLabel=((i+2>12)?(i+2-12):(i+2)); // 인월=2월 근사표기
+      out.push({label:(i+1)+"월", mlabel:monLabel+"월",
+        ganji:S_KO[si]+B_KO[bi], ganji_hanja:S_HJ[si]+B_HJ[bi],
+        stem_ten_star:tenStar(dmI,si), branch_ten_star:branchTenStar(dmI,bi),
+        twelve_life:twelveLife(dmI,bi), stem_elem:S_EL[si], branch_elem:B_EL[bi]});
+    }
+    return out;
+  }
+  // 신살/길성(주요 항목) — 일간·일지·년지 기준
+  var CHEONEUL={0:[1,7],5:[1,7],1:[0,8],6:[0,8],2:[11,9],7:[11,9],3:[11,9],8:[11,9],4:[1,7],9:[3,5]};
+  var MUNCHANG={0:5,1:6,2:8,3:9,4:8,5:9,6:11,7:0,8:2,9:3}; // 문창귀인(일간→지지)
+  var YEOKMA={2:8,6:8,10:8, 8:2,0:2,4:2, 5:11,9:11,1:11, 11:5,3:5,7:5}; // 삼합기준 역마(지지)
+  var HWAGAE={2:10,6:10,10:10, 8:4,0:4,4:4, 5:1,9:1,1:1, 11:7,3:7,7:7}; // 화개
+  var DOHWA={2:3,6:3,10:3, 8:9,0:9,4:9, 5:6,9:6,1:6, 11:0,3:0,7:0}; // 도화(년살)
+  var YANGIN={0:3,2:6,4:6,6:9,8:0}; // 양인(양간 일간→지지)
+  function gilsinOf(pil,dmI){
+    var res={}; var keys=["hour","day","month","year"];
+    var dayBranch=pil.day.branch_idx, yearBranch=pil.year.branch_idx;
+    keys.forEach(function(k){
+      var bi=pil[k].branch_idx, tags=[];
+      if(CHEONEUL[dmI] && CHEONEUL[dmI].indexOf(bi)>=0) tags.push("천을귀인");
+      if(MUNCHANG[dmI]===bi) tags.push("문창귀인");
+      if(YEOKMA[dayBranch]===bi || YEOKMA[yearBranch]===bi) tags.push("역마살");
+      if(HWAGAE[dayBranch]===bi || HWAGAE[yearBranch]===bi) tags.push("화개살");
+      if(DOHWA[dayBranch]===bi || DOHWA[yearBranch]===bi) tags.push("도화살");
+      if(YANGIN[dmI]===bi) tags.push("양인살");
+      // 괴강(경진·경술·임진·무술·임술 일주)
+      var djg=pil.day.stem_idx+"-"+pil.day.branch_idx;
+      if(k==="day" && ["6-4","6-10","8-4","4-10","8-10"].indexOf(djg)>=0) tags.push("괴강살");
+      // 현침(갑·신 천간 + 묘·오·신·미 지지 계열 간이)
+      res[k]=tags;
+    });
+    return res;
+  }
+
   // ════════ 통합 ════════
   function pillarView(pil,key,dmI,sinBase){
     var p=pil[key],b=p.branch_idx;
@@ -294,6 +371,12 @@
       yongshin:{johu:johu(pil),eokbu:eokbu(pil,st)},
       daeun:daeunList(pil,gender,10),
       seun:seunList(pil,y,seunSpan),
+      wolun:wolunList(pil,dmI,y),
+      nickname:nickname(pil.day.stem_idx,pil.day.branch_idx),
+      elements2:elemPct(pil),
+      tenstar:tenstarStats(pil,dmI),
+      groups:elemGroups(pil,S_EL[dmI]),
+      gilsin:gilsinOf(pil,dmI),
       meta:pil.meta,
       bands:BANDS
     };
