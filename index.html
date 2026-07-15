@@ -2,45 +2,94 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>만세력 · 사주 자동 계산</title>
-<meta name="description" content="생년월일시로 사주 원국·신강약·용신·대운·세운을 즉시 계산합니다. 브라우저에서 바로 계산(서버 전송 없음).">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>만세력</title>
+<meta name="description" content="생년월일시로 사주 만세력을 즉시 계산합니다. 브라우저에서 바로 처리(서버 전송 없음).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%AF%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand"><span class="logo">☯</span> 만세력</div>
-  <div class="tagline">생년월일시로 사주를 즉시 계산 · 브라우저에서 바로 처리</div>
-</header>
+<div class="phone">
 
-<main>
-  <!-- 입력 -->
-  <section class="input-card" id="inputCard">
-    <div class="fields">
-      <label class="fld"><span>연도</span><input type="number" id="y" value="1998" min="1900" max="2100"></label>
-      <label class="fld"><span>월</span><input type="number" id="mo" value="6" min="1" max="12"></label>
-      <label class="fld"><span>일</span><input type="number" id="d" value="8" min="1" max="31"></label>
-      <label class="fld"><span>시</span><input type="number" id="h" value="10" min="0" max="23"></label>
-      <label class="fld"><span>분</span><input type="number" id="mi" value="0" min="0" max="59"></label>
-      <div class="fld gender">
-        <span>성별</span>
-        <div class="seg">
-          <button type="button" data-g="F" class="on">여자</button>
-          <button type="button" data-g="M">남자</button>
+  <!-- 상단바 -->
+  <header class="appbar">
+    <span class="ab-side"></span>
+    <span class="ab-title">만세력 <span class="ab-badge">✦</span></span>
+    <button class="ab-side ab-menu" id="menuBtn" aria-label="메뉴">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ① 입력 화면 -->
+  <section class="screen" id="inputScreen">
+    <div class="pad">
+
+      <div class="field">
+        <label class="flabel" for="name">이름</label>
+        <input class="tinput" type="text" id="name" maxlength="12" placeholder="최대 12글자 이내로 입력하세요">
+      </div>
+
+      <div class="field">
+        <label class="flabel">성별</label>
+        <div class="segment" id="genderSeg">
+          <button type="button" class="seg-btn on" data-g="F">여자</button>
+          <button type="button" class="seg-btn" data-g="M">남자</button>
         </div>
       </div>
-      <label class="fld chk"><input type="checkbox" id="latezi"><span>야자시</span></label>
+
+      <div class="field">
+        <div class="flabel-row">
+          <label class="flabel">생년월일시</label>
+          <button type="button" class="link-btn" id="ganjiBtn">12간지 시간표 <span class="mag">⌕</span></button>
+        </div>
+        <div class="dob-row">
+          <div class="select-wrap">
+            <select class="tselect" id="calendar">
+              <option value="S">양력</option>
+              <option value="L">음력</option>
+              <option value="LL">음력(윤달)</option>
+            </select>
+            <span class="chev">▾</span>
+          </div>
+          <input class="tinput date" type="text" id="birthday" inputmode="numeric" placeholder="YYYY/MM/DD">
+          <input class="tinput time" type="text" id="birthtime" inputmode="numeric" placeholder="HH:MM">
+        </div>
+        <div class="opt-row">
+          <label class="radio"><input type="checkbox" id="hmUnsure"><span class="dot"></span>시간 모름</label>
+          <label class="radio"><input type="checkbox" id="lateZi"><span class="dot"></span>야자시/조자시</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="flabel" for="city">도시</label>
+        <div class="search-wrap">
+          <input class="tinput" type="text" id="city" placeholder="도시명을 입력하세요 (예: 서울)">
+          <span class="mag-ico">⌕</span>
+        </div>
+        <p class="hint">태어난 도시를 모르면 ‘서울’ 혹은 태어난 국가의 수도를 입력하세요. (진태양시 보정)</p>
+      </div>
+
     </div>
-    <button class="go" id="go">만세력 보기</button>
+
+    <div class="bottom">
+      <button class="btn-primary" id="go">만세력 보러가기</button>
+      <button class="btn-ghost" id="loadBtn">저장된 만세력 불러오기</button>
+    </div>
   </section>
 
-  <section id="result"></section>
-  <footer class="foot">
-    계산 엔진: 결정론 만세력(오차 0) · 절기 로컬 천문계산 · 해석은 LLM 레이어(분리)<br>
-    ⓘ 신강약 밴드·인구분포·용신은 유파/통계별 보정 대상입니다.
-  </footer>
-</main>
+  <!-- ② 결과 화면 -->
+  <section class="screen hidden" id="resultScreen">
+    <div class="result-bar">
+      <button class="back" id="backBtn">‹ 다시 입력</button>
+      <button class="save" id="saveBtn">저장</button>
+    </div>
+    <div id="result" class="pad"></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="js/saju-engine.js"></script>
 <script src="js/app.js"></script>
