@@ -146,7 +146,8 @@
   // 프로필
   function renderProfile(c) {
     var dm = c.day_master, m = c._meta, ch = c.chart;
-    var emoji = ANIMAL_EMOJI[ch.day.branch.animal] || "☯";
+    var tti = ch.year.branch.animal;            // 띠 = 년지(입춘 기준)
+    var emoji = ANIMAL_EMOJI[tti] || "☯";
     var gtxt = m.gender + (m.city ? " · " + m.city : "");
     var lines = '<div class="pdate"><b>양</b> ' + m.solarY + "/" + pad(m.solarMo) + "/" + pad(m.solarD) +
       (m.unsure ? " 시간모름" : " " + hhmm(m.h, m.mi)) + " " + gtxt + '</div>';
@@ -154,8 +155,8 @@
     if (m.off != null && !m.unsure) lines += '<div class="pdate"><b>양</b> ' + m.solarY + "/" + pad(m.solarMo) + "/" + pad(m.solarD) + " " + hhmm(m.useH, m.useMi) +
       ' <span class="tag">(지역시 ' + (m.off >= 0 ? "+" : "") + m.off + '분)</span></div>';
     return '<div class="rcard"><div class="profile-head"><div class="avatar">' + emoji + '</div>' +
-      '<div><div class="profile-name">' + m.name + '</div><div class="profile-nick el-' + dm.elem + '">' +
-      c.pillars["일주"] + '(' + c.nickname + ') · 일간 ' + dm.ko + dm.hanja + '</div></div></div>' +
+      '<div class="profile-info"><div class="profile-name">' + m.name + '</div>' +
+      '<div class="profile-nick"><span class="tti">' + tti + '띠</span> · 일간 <b class="el-' + dm.elem + '">' + dm.ko + dm.hanja + '</b> · 일주 ' + c.pillars["일주"] + '(' + c.nickname + ')</div></div></div>' +
       '<div class="profile-dates">' + lines + '</div></div>';
   }
 
