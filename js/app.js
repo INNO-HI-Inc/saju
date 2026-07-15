@@ -179,7 +179,9 @@
     var html = '<div class="summary"><span class="dm el-' + dm.elem + '">' + m.name + ' · 일간 ' + dm.ko + dm.hanja + ' (' + dm.sign + dm.elem + ')</span>' +
       '<span class="palja">' + p["년주"] + " · " + p["월주"] + " · " + p["일주"] + " · " + p["시주"] +
       "　|　" + (m.cal === "S" ? "양력" : "음력") + " " + m.inputSolar + offTxt + '</span></div>';
-    html += renderWonguk(c) + renderStrength(c) + renderYongshin(c) + renderDaeun(c) + renderSeun(c);
+    html += renderWonguk(c)
+      + '<div class="result-grid">' + renderStrength(c) + renderYongshin(c) + '</div>'
+      + renderDaeun(c) + renderSeun(c);
     html += '<div class="rfoot">브라우저에서 즉시 계산 · 절기 천문계산 · 신강약/용신은 유파별 보정 가능</div>';
     $("result").innerHTML = html;
     $("result").scrollTop = 0;
@@ -215,6 +217,12 @@
     document.querySelectorAll(".seg-btn").forEach(function (b) { b.classList.toggle("on", b.dataset.g === gender); });
     validate(); toast("‘" + s.name + "’ 불러옴");
     $("go").click();
+  });
+
+  // 네비 저장버튼 = 불러오기, 12간지 시간표 안내
+  var lb2 = $("loadBtn2"); if (lb2) lb2.addEventListener("click", function () { $("loadBtn").click(); });
+  var gb = $("ganjiBtn"); if (gb) gb.addEventListener("click", function () {
+    toast("자 23~01 · 축 01~03 · 인 03~05 · 묘 05~07 · 진 07~09 · 사 09~11 · 오 11~13 · 미 13~15 · 신 15~17 · 유 17~19 · 술 19~21 · 해 21~23");
   });
 
   var toastTimer;

@@ -2,92 +2,101 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>만세력</title>
-<meta name="description" content="생년월일시로 사주 만세력을 즉시 계산합니다. 브라우저에서 바로 처리(서버 전송 없음).">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>만세력 · 사주 계산</title>
+<meta name="description" content="생년월일시로 사주 원국·신강약·용신·대운을 즉시 계산합니다. 브라우저에서 바로 처리(서버 전송 없음).">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%AF%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="phone">
 
-  <!-- 상단바 -->
-  <header class="appbar">
-    <span class="ab-side"></span>
-    <span class="ab-title">만세력 <span class="ab-badge">✦</span></span>
-    <button class="ab-side ab-menu" id="menuBtn" aria-label="메뉴">
-      <span></span><span></span><span></span>
-    </button>
-  </header>
+<!-- 네비게이션 -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="./"><span class="logo-mark">☯</span> 만세력</a>
+    <div class="nav-right">
+      <span class="nav-link">브라우저에서 즉시 계산</span>
+      <button class="nav-cta" id="loadBtn2">저장된 만세력</button>
+    </div>
+  </div>
+</nav>
 
-  <!-- ① 입력 화면 -->
+<main class="container">
+
+  <!-- ① 입력 -->
   <section class="screen" id="inputScreen">
-    <div class="pad">
-
-      <div class="field">
-        <label class="flabel" for="name">이름</label>
-        <input class="tinput" type="text" id="name" maxlength="12" placeholder="최대 12글자 이내로 입력하세요">
-      </div>
-
-      <div class="field">
-        <label class="flabel">성별</label>
-        <div class="segment" id="genderSeg">
-          <button type="button" class="seg-btn on" data-g="F">여자</button>
-          <button type="button" class="seg-btn" data-g="M">남자</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="flabel-row">
-          <label class="flabel">생년월일시</label>
-          <button type="button" class="link-btn" id="ganjiBtn">12간지 시간표 <span class="mag">⌕</span></button>
-        </div>
-        <div class="dob-row">
-          <div class="select-wrap">
-            <select class="tselect" id="calendar">
-              <option value="S">양력</option>
-              <option value="L">음력</option>
-              <option value="LL">음력(윤달)</option>
-            </select>
-            <span class="chev">▾</span>
-          </div>
-          <input class="tinput date" type="text" id="birthday" inputmode="numeric" placeholder="YYYY/MM/DD">
-          <input class="tinput time" type="text" id="birthtime" inputmode="numeric" placeholder="HH:MM">
-        </div>
-        <div class="opt-row">
-          <label class="radio"><input type="checkbox" id="hmUnsure"><span class="dot"></span>시간 모름</label>
-          <label class="radio"><input type="checkbox" id="lateZi"><span class="dot"></span>야자시/조자시</label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="flabel" for="city">도시</label>
-        <div class="search-wrap">
-          <input class="tinput" type="text" id="city" placeholder="도시명을 입력하세요 (예: 서울)">
-          <span class="mag-ico">⌕</span>
-        </div>
-        <p class="hint">태어난 도시를 모르면 ‘서울’ 혹은 태어난 국가의 수도를 입력하세요. (진태양시 보정)</p>
-      </div>
-
+    <div class="hero">
+      <h1 class="h1">사주 만세력</h1>
+      <p class="hero-sub">생년월일시만 입력하면 원국·신강약·용신·대운·세운까지 한 번에.</p>
     </div>
 
-    <div class="bottom">
-      <button class="btn-primary" id="go">만세력 보러가기</button>
+    <div class="card input-card">
+      <div class="form-grid">
+        <div class="field span2">
+          <label class="flabel" for="name">이름</label>
+          <input class="tinput" type="text" id="name" maxlength="12" placeholder="최대 12글자">
+        </div>
+
+        <div class="field">
+          <label class="flabel">성별</label>
+          <div class="segment" id="genderSeg">
+            <button type="button" class="seg-btn on" data-g="F">여자</button>
+            <button type="button" class="seg-btn" data-g="M">남자</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="flabel" for="city">도시 <span class="lopt">선택 · 진태양시 보정</span></label>
+          <div class="search-wrap">
+            <input class="tinput" type="text" id="city" placeholder="예: 서울">
+            <span class="mag-ico">⌕</span>
+          </div>
+        </div>
+
+        <div class="field span2">
+          <div class="flabel-row">
+            <label class="flabel">생년월일시</label>
+            <button type="button" class="link-btn" id="ganjiBtn">12간지 시간표</button>
+          </div>
+          <div class="dob-row">
+            <div class="select-wrap">
+              <select class="tselect" id="calendar">
+                <option value="S">양력</option>
+                <option value="L">음력</option>
+                <option value="LL">음력(윤달)</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+            <input class="tinput date" type="text" id="birthday" inputmode="numeric" placeholder="YYYY/MM/DD">
+            <input class="tinput time" type="text" id="birthtime" inputmode="numeric" placeholder="HH:MM">
+          </div>
+          <div class="opt-row">
+            <label class="radio"><input type="checkbox" id="hmUnsure"><span class="dot"></span>시간 모름</label>
+            <label class="radio"><input type="checkbox" id="lateZi"><span class="dot"></span>야자시/조자시</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="go">만세력 보기</button>
       <button class="btn-ghost" id="loadBtn">저장된 만세력 불러오기</button>
     </div>
+
+    <p class="disclaimer">계산은 브라우저에서 즉시 처리되며 어디에도 전송되지 않습니다. · 절기 천문계산 · 신강약/용신은 유파별 보정 대상입니다.</p>
   </section>
 
-  <!-- ② 결과 화면 -->
+  <!-- ② 결과 -->
   <section class="screen hidden" id="resultScreen">
     <div class="result-bar">
       <button class="back" id="backBtn">‹ 다시 입력</button>
-      <button class="save" id="saveBtn">저장</button>
+      <button class="save" id="saveBtn">저장하기</button>
     </div>
-    <div id="result" class="pad"></div>
+    <div id="result"></div>
   </section>
 
-</div>
+</main>
+
+<footer class="site-foot">☯ 만세력 · 결정론 계산 엔진(오차 0) + 절기 로컬 천문계산 · 오픈소스</footer>
 
 <div class="toast" id="toast"></div>
 
