@@ -199,7 +199,7 @@
   // ════════ 신강약/용신 ════════
   var BANDS=["극약","태약","신약","중화신약","중화신강","신강","태강","극왕"];
   var CUTS=[18,30,41,48,57,68,80];
-  var POSW={year:1,month:3,day:2,hour:1};
+  var POSW={year:1,month:2,day:1.5,hour:1};
   var ROOTW={장생:1,관대:1,건록:1,제왕:1,목욕:0.5,양:0.5,쇠:0.5,묘:0.1,병:0.2,사:0,절:0,태:0.3};
   function supports(de,e){return e===de||GEN[e]===de;}
   function deukFlags(pil){
@@ -216,11 +216,13 @@
       HIDDEN[b].forEach(function(it){var e=S_EL[it[0]],v=it[1]/30*w;if(supports(de,e))sup+=v;else opp+=v;});});
     var sr=sup/(sup+opp),rn=0,rd=0;
     keys.forEach(function(k){var w=POSW[k],life=twelveLife(dmI,pil[k].branch_idx);rn+=(ROOTW[life]||0)*w;rd+=w;});
-    var rr=rn/rd,index=Math.round(100*(0.55*sr+0.45*rr)),band=BANDS[0];
+    var rr=rn/rd;
+    var dk=deukFlags(pil), dc=(dk.득령?1:0)+(dk.득지?1:0)+(dk.득시?1:0)+(dk.득세?1:0), dr=dc/4;
+    var index=Math.round(100*(0.45*sr+0.22*rr+0.33*dr)),band=BANDS[0];
     for(var i=0;i<CUTS.length;i++){if(index>=CUTS[i])band=BANDS[i+1];}
     return {index:index,band:band,is_strong:index>=CUTS[3],
       support_ratio:Math.round(sr*1e4)/1e4,root_ratio:Math.round(rr*1e4)/1e4,
-      deuk:deukFlags(pil),band_index:BANDS.indexOf(band)};
+      deuk:dk,band_index:BANDS.indexOf(band)};
   }
   var SEASON={2:"봄",3:"봄",4:"봄",5:"여름",6:"여름",7:"여름",8:"가을",9:"가을",10:"가을",11:"겨울",0:"겨울",1:"겨울"};
   function johu(pil){var s=SEASON[pil.month.branch_idx],dm=S_EL[pil.day_master_idx];
@@ -316,32 +318,109 @@
     }
     return out;
   }
-  // 신살/길성(주요 항목) — 일간·일지·년지 기준
-  var CHEONEUL={0:[1,7],5:[1,7],1:[0,8],6:[0,8],2:[11,9],7:[11,9],3:[11,9],8:[11,9],4:[1,7],9:[3,5]};
-  var MUNCHANG={0:5,1:6,2:8,3:9,4:8,5:9,6:11,7:0,8:2,9:3}; // 문창귀인(일간→지지)
-  var YEOKMA={2:8,6:8,10:8, 8:2,0:2,4:2, 5:11,9:11,1:11, 11:5,3:5,7:5}; // 삼합기준 역마(지지)
-  var HWAGAE={2:10,6:10,10:10, 8:4,0:4,4:4, 5:1,9:1,1:1, 11:7,3:7,7:7}; // 화개
-  var DOHWA={2:3,6:3,10:3, 8:9,0:9,4:9, 5:6,9:6,1:6, 11:0,3:0,7:0}; // 도화(년살)
-  var YANGIN={0:3,2:6,4:6,6:9,8:0}; // 양인(양간 일간→지지)
+  // ── 신살/길성 (일간·일지·년지 기준) ──
+  var CHEONEUL={0:[1,7],4:[1,7],6:[1,7],1:[0,8],5:[0,8],2:[11,9],3:[11,9],7:[2,6],8:[5,3],9:[5,3]}; // 천을귀인
+  var MUNCHANG={0:5,1:6,2:8,3:9,4:8,5:9,6:11,7:0,8:2,9:3};   // 문창귀인
+  var AMROK={0:11,1:10,2:8,3:7,4:8,5:7,6:5,7:4,8:2,9:1};      // 암록
+  var YEOKMA={2:8,6:8,10:8, 8:2,0:2,4:2, 5:11,9:11,1:11, 11:5,3:5,7:5};
+  var HWAGAE={2:10,6:10,10:10, 8:4,0:4,4:4, 5:1,9:1,1:1, 11:7,3:7,7:7};
+  var DOHWA={2:3,6:3,10:3, 8:9,0:9,4:9, 5:6,9:6,1:6, 11:0,3:0,7:0};
+  var YANGIN={0:3,2:6,4:6,6:9,8:0};
+  var GOEGANG=["6-4","6-10","8-4","4-10","8-10"];            // 괴강(간지)
+  var BAEKHO=["0-4","1-7","2-10","3-1","4-4","8-10","9-1"];  // 백호대살(간지)
   function gilsinOf(pil,dmI){
-    var res={}; var keys=["hour","day","month","year"];
-    var dayBranch=pil.day.branch_idx, yearBranch=pil.year.branch_idx;
+    var keys=["hour","day","month","year"], db=pil.day.branch_idx, yb=pil.year.branch_idx, res={}, all={};
     keys.forEach(function(k){
-      var bi=pil[k].branch_idx, tags=[];
-      if(CHEONEUL[dmI] && CHEONEUL[dmI].indexOf(bi)>=0) tags.push("천을귀인");
-      if(MUNCHANG[dmI]===bi) tags.push("문창귀인");
-      if(YEOKMA[dayBranch]===bi || YEOKMA[yearBranch]===bi) tags.push("역마살");
-      if(HWAGAE[dayBranch]===bi || HWAGAE[yearBranch]===bi) tags.push("화개살");
-      if(DOHWA[dayBranch]===bi || DOHWA[yearBranch]===bi) tags.push("도화살");
-      if(YANGIN[dmI]===bi) tags.push("양인살");
-      // 괴강(경진·경술·임진·무술·임술 일주)
-      var djg=pil.day.stem_idx+"-"+pil.day.branch_idx;
-      if(k==="day" && ["6-4","6-10","8-4","4-10","8-10"].indexOf(djg)>=0) tags.push("괴강살");
-      // 현침(갑·신 천간 + 묘·오·신·미 지지 계열 간이)
-      res[k]=tags;
+      var bi=pil[k].branch_idx, si=pil[k].stem_idx, t=[];
+      function add(x){t.push(x); all[x]=1;}
+      if(CHEONEUL[dmI]&&CHEONEUL[dmI].indexOf(bi)>=0) add("천을귀인");
+      if(MUNCHANG[dmI]===bi) add("문창귀인");
+      if(AMROK[dmI]===bi) add("암록");
+      if(YEOKMA[db]===bi||YEOKMA[yb]===bi) add("역마살");
+      if(HWAGAE[db]===bi||HWAGAE[yb]===bi) add("화개살");
+      if(DOHWA[db]===bi||DOHWA[yb]===bi) add("도화살");
+      if(YANGIN[dmI]===bi) add("양인살");
+      var pr=si+"-"+bi;
+      if(GOEGANG.indexOf(pr)>=0) add("괴강살");
+      if(BAEKHO.indexOf(pr)>=0) add("백호대살");
+      if(si===0||si===7||bi===8||bi===3||bi===6||bi===7) add("현침살");
+      res[k]=t;
     });
-    return res;
+    return {byPillar:res, list:Object.keys(all)};
   }
+
+  // ── 합·충·형·파·해·원진·공망 ──
+  function relations(pil){
+    var st=["year","month","day","hour"].map(function(k){return pil[k].stem_idx;});
+    var br=["year","month","day","hour"].map(function(k){return pil[k].branch_idx;});
+    var pos=["년","월","일","시"];
+    var out={천간합:[],천간충:[],지지육합:[],지지삼합:[],지지방합:[],지지충:[],형:[],파:[],해:[],원진:[],공망:[]};
+    var GANHAP={"0-5":"토","1-6":"금","2-7":"수","3-8":"목","4-9":"화"};
+    var GANCHUNG=[[0,6],[1,7],[2,8],[3,9]];
+    var YUKHAP={"0-1":"토","2-11":"목","3-10":"화","4-9":"금","5-8":"수","6-7":"화"};
+    var JICHUNG=[[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
+    var PA=[[0,9],[3,6],[2,11],[5,8],[1,4],[7,10]];
+    var HAE=[[0,7],[1,6],[2,5],[3,4],[8,11],[9,10]];
+    var WONJIN=[[0,7],[1,6],[2,9],[3,8],[4,11],[5,10]];
+    function has(list,a,b){return list.some(function(c){return (a===c[0]&&b===c[1])||(a===c[1]&&b===c[0]);});}
+    for(var i=0;i<4;i++)for(var j=i+1;j<4;j++){
+      var a=st[i],b=st[j],key=Math.min(a,b)+"-"+Math.max(a,b);
+      if(GANHAP[key]) out.천간합.push(pos[i]+pos[j]+"합 "+GANHAP[key]);
+      if(has(GANCHUNG,a,b)) out.천간충.push(pos[i]+pos[j]+"충");
+      var ba=br[i],bb=br[j],bk=Math.min(ba,bb)+"-"+Math.max(ba,bb);
+      if(YUKHAP[bk]) out.지지육합.push(pos[i]+pos[j]+"육합 "+YUKHAP[bk]);
+      if(has(JICHUNG,ba,bb)) out.지지충.push(pos[i]+pos[j]+"충");
+      if(has(PA,ba,bb)) out.파.push(pos[i]+pos[j]+"파");
+      if(has(HAE,ba,bb)) out.해.push(pos[i]+pos[j]+"해");
+      if(has(WONJIN,ba,bb)) out.원진.push(pos[i]+pos[j]+"원진");
+    }
+    var bset={}; br.forEach(function(x){bset[x]=(bset[x]||0)+1;});
+    [[8,0,4,"수"],[2,6,10,"화"],[5,9,1,"금"],[11,3,7,"목"]].forEach(function(t){
+      var c=(bset[t[0]]?1:0)+(bset[t[1]]?1:0)+(bset[t[2]]?1:0);
+      if(c>=2) out.지지삼합.push((c===3?"":"반")+"삼합 "+t[3]+"국"); });
+    [[2,3,4,"목"],[5,6,7,"화"],[8,9,10,"금"],[11,0,1,"수"]].forEach(function(t){
+      var c=(bset[t[0]]?1:0)+(bset[t[1]]?1:0)+(bset[t[2]]?1:0);
+      if(c>=2) out.지지방합.push((c===3?"":"반")+"방합 "+t[3]+"국"); });
+    // 형
+    var sam1=[2,5,8],sam2=[1,10,7];
+    var c1=sam1.filter(function(x){return bset[x];}).length, c2=sam2.filter(function(x){return bset[x];}).length;
+    if(c1>=2) out.형.push("인사신 삼형"); if(c2>=2) out.형.push("축술미 삼형");
+    if(bset[0]&&bset[3]) out.형.push("자묘 상형");
+    [4,6,9,11].forEach(function(x){ if(bset[x]>=2) out.형.push(B_KO[x]+B_KO[x]+" 자형"); });
+    // 공망(일주 순중)
+    var dI=idx60(pil.day.stem_idx,pil.day.branch_idx), xb=(Math.floor(dI/10)*10)%12;
+    out.공망.push(B_KO[(xb+10)%12]+B_KO[(xb+11)%12]);
+    return out;
+  }
+
+  function palaces(){
+    return [
+      {k:"hour",label:"생시",cheon:"자녀·결실",ji:"말년운",g:"아들",z:"딸"},
+      {k:"day",label:"생일",cheon:"정체성·자아",ji:"중년운",g:"자신",z:"배우자"},
+      {k:"month",label:"생월",cheon:"부모·사회상",ji:"청년운",g:"부친",z:"모친"},
+      {k:"year",label:"생년",cheon:"조상·시대상",ji:"초년운",g:"조부",z:"조모"}
+    ];
+  }
+
+  // ── 일진 달력 ──
+  var TERM_NAME={0:"춘분",15:"청명",30:"곡우",45:"입하",60:"소만",75:"망종",90:"하지",105:"소서",120:"대서",135:"입추",150:"처서",165:"백로",180:"추분",195:"한로",210:"상강",225:"입동",240:"소설",255:"대설",270:"동지",285:"소한",300:"대한",315:"입춘",330:"우수",345:"경칩"};
+  function iljinMonth(year,month){
+    var ndays=new Date(Date.UTC(year,month,0)).getUTCDate();
+    var first=new Date(Date.UTC(year,month-1,1)).getUTCDay();
+    var days=[];
+    for(var d=1;d<=ndays;d++){
+      var jdn=civilJDN(year,month,d), i60=mod(jdn+DAY_OFF,60), s=i60%10,b=i60%12;
+      days.push({day:d,ganji:S_KO[s]+B_KO[b],ganji_hanja:S_HJ[s]+B_HJ[b],stem_elem:S_EL[s],branch_elem:B_EL[b]});
+    }
+    var terms=[];
+    for(var deg=0;deg<360;deg+=15){
+      var t=findTermMs(year,deg), dt=new Date(t+KST_MS);
+      if(dt.getUTCFullYear()===year&&dt.getUTCMonth()+1===month)
+        terms.push({day:dt.getUTCDate(),name:TERM_NAME[deg],time:pad2(dt.getUTCHours())+":"+pad2(dt.getUTCMinutes())});
+    }
+    return {year:year,month:month,firstWeekday:first,days:days,terms:terms};
+  }
+  function pad2(n){return (n<10?"0":"")+n;}
 
   // ════════ 통합 ════════
   function pillarView(pil,key,dmI,sinBase){
@@ -377,13 +456,15 @@
       tenstar:tenstarStats(pil,dmI),
       groups:elemGroups(pil,S_EL[dmI]),
       gilsin:gilsinOf(pil,dmI),
+      relations:relations(pil),
+      palaces:palaces(),
       meta:pil.meta,
       bands:BANDS
     };
   }
   function pad(n){return (n<10?"0":"")+n;}
 
-  var API={buildChart:buildChart,ELEMENTS:ELEMENTS,BANDS:BANDS,
+  var API={buildChart:buildChart,ELEMENTS:ELEMENTS,BANDS:BANDS,iljinMonth:iljinMonth,
     _internal:{computePillars:computePillars,findTermMs:findTermMs,ipchunMs:ipchunMs,tenStar:tenStar}};
   if(typeof module!=="undefined"&&module.exports)module.exports=API;
   root.SajuEngine=API;

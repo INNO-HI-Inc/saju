@@ -223,6 +223,69 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%) translateY(20px);background:var(--g900);color:#fff;padding:14px 24px;border-radius:16px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.28s cubic-bezier(.2,.8,.2,1);z-index:50;box-shadow:var(--sh-lg);max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* 카드 헤더(제목+힌트) */
+.rc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px}
+.rc-head h2{margin:0}
+.rc-hint{font-size:12px;color:var(--g400);font-weight:600;white-space:nowrap}
+
+/* 프리미엄 대운/연운/월운 카드 */
+.luck-scroll{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.lc{background:var(--g50);border-radius:16px;padding:11px 5px;text-align:center;transition:.16s cubic-bezier(.2,.8,.2,1);border:1px solid transparent;min-width:0}
+.lc:hover{transform:translateY(-4px);box-shadow:var(--sh);background:#fff;border-color:var(--g100)}
+.lc-top{font-size:12.5px;font-weight:800;color:var(--g800);line-height:1.2}
+.lc-sub{display:block;font-size:10px;font-weight:700;color:var(--g400);margin-top:1px}
+.lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:4px 0 7px;height:13px;overflow:hidden}
+.lc-cell{border-radius:11px;padding:8px 0;margin:4px 0;display:flex;align-items:baseline;justify-content:center;gap:2px}
+.lc-ko{font-size:23px;font-weight:800;letter-spacing:-.02em}
+.lc-hj{font-size:12px;opacity:.55;font-weight:700}
+.lc-bot{margin-top:7px;font-size:10.5px;color:var(--g500);line-height:1.55;display:flex;flex-direction:column;gap:1px;font-weight:500}
+.lc-life{font-weight:700;color:var(--g600)}
+.lc-now{background:#fff;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow)}
+.lc-now .lc-top{color:var(--blue)}
+
+/* 신살·길성 */
+.sin-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.sin-chip{font-size:13px;font-weight:700;padding:8px 14px;border-radius:24px;background:var(--blue-bg);color:var(--blue)}
+.sin-grid{display:grid;grid-template-columns:44px repeat(4,1fr);gap:8px;align-items:stretch}
+.sin-h{font-size:12px;color:var(--g500);font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center}
+.sin-rl{font-size:12px;color:var(--g500);font-weight:600;display:flex;align-items:center}
+.sin-gz{text-align:center;font-size:17px;font-weight:800;padding:8px 0;background:var(--g50);border-radius:12px}
+.sin-tags{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;background:var(--g50);border-radius:12px;padding:8px 4px}
+.sin-tags span{font-size:11.5px;font-weight:700;color:var(--g700)}
+.sin-tags .none{color:var(--g300)}
+
+/* 사주 풀이(궁성+관계) */
+.pal-grid{display:grid;grid-template-columns:44px repeat(4,1fr);gap:8px;margin-bottom:18px}
+.pal-h{font-size:12px;color:var(--g500);font-weight:700;text-align:center}
+.pal-rl{font-size:12px;color:var(--g500);font-weight:600;display:flex;align-items:center}
+.pal-c{background:var(--g50);border-radius:12px;padding:10px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.pal-c b{font-size:15px;font-weight:800}
+.pal-c span{font-size:11px;color:var(--g500);font-weight:500}
+.rel-list{display:flex;flex-direction:column;gap:2px}
+.rel-row{display:flex;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--g100)}
+.rel-row:last-child{border-bottom:0}
+.rel-k{font-size:12px;font-weight:800;padding:4px 11px;border-radius:8px;flex:0 0 auto;min-width:64px;text-align:center}
+.rel-good{background:var(--wood-bg);color:var(--wood)}
+.rel-bad{background:var(--fire-bg);color:var(--fire)}
+.rel-v{font-size:14px;color:var(--g800);font-weight:600}
+
+/* 일진 달력 */
+.ilj-nav{display:flex;align-items:center;gap:6px}
+.ilj-nav button{width:34px;height:34px;border:0;background:var(--g100);border-radius:11px;font-size:18px;color:var(--g700);cursor:pointer;font-weight:700;transition:.12s}
+.ilj-nav button:hover{background:var(--g200)}
+.ilj-title{font-size:15px;font-weight:800;min-width:64px;text-align:center}
+.ilj-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.ilj-wd{text-align:center;font-size:12px;font-weight:700;color:var(--g500);padding-bottom:4px}
+.ilj-wd.sun{color:var(--fire)}.ilj-wd.sat{color:var(--blue)}
+.ilj-cell{background:var(--g50);border-radius:12px;padding:8px 4px 9px;min-height:64px;text-align:center;transition:.12s}
+.ilj-cell.empty{background:transparent}
+.ilj-cell:not(.empty):hover{background:var(--g100)}
+.ilj-cell.has-term{background:var(--blue-bg);box-shadow:inset 0 0 0 1.5px var(--blue)}
+.ilj-d{font-size:13px;font-weight:800;color:var(--g800)}
+.ilj-cell.sun .ilj-d{color:var(--fire)}.ilj-cell.sat .ilj-d{color:var(--blue)}
+.ilj-g{font-size:13px;font-weight:700;margin-top:3px}
+.ilj-term{font-size:10px;font-weight:800;color:var(--blue);margin-top:2px}
+
 /* 반응형 */
 @media(max-width:860px){
   .result-grid{grid-template-columns:1fr}
@@ -236,8 +299,13 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
   .wonguk-grid{grid-template-columns:36px repeat(4,1fr);gap:5px}
   .wg-cell{padding:11px 2px;border-radius:12px}.wg-big{font-size:27px}.wg-big .hj{font-size:15px}
   .luck-scroll{display:flex;overflow-x:auto;gap:8px;padding-bottom:10px;scroll-snap-type:x proximity}
-  .luck-card{flex:0 0 64px;scroll-snap-align:start}
+  .lc{flex:0 0 68px;scroll-snap-align:start}
   .nav-link{display:none}
   .dob-row{grid-template-columns:1fr 1fr;gap:8px}
   .dob-row .select-wrap{grid-column:1 / -1}
+  .sin-grid,.pal-grid{grid-template-columns:36px repeat(4,1fr);gap:5px}
+  .sin-gz,.pal-c b{font-size:14px}
+  .ilj-grid{gap:4px}.ilj-cell{min-height:52px;padding:6px 2px 7px;border-radius:9px}
+  .ilj-g{font-size:11px}.ilj-d{font-size:12px}.ilj-term{font-size:9px}
+  .rel-k{min-width:56px}
 }

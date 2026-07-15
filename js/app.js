@@ -253,29 +253,90 @@
     return '<div class="rcard"><h2>용신 <span class="mut">用神</span></h2><div class="yong-list">' + it("조후용신", y.johu) + it("억부용신", y.eokbu) + '</div></div>';
   }
 
-  // 대운/세운/월운
-  function luckCard(x, isNow, label) {
-    return '<div class="luck-card ' + (isNow ? "luck-now" : "") + '"><div class="luck-age">' + label + '</div>' +
-      '<div class="luck-ten">' + x.stem_ten_star + '</div><div class="luck-box">' +
-      '<div class="luck-h bg-' + x.stem_elem + ' el-' + x.stem_elem + '">' + x.ganji.charAt(0) + '<span class="hj">' + x.ganji_hanja.charAt(0) + '</span></div>' +
-      '<div class="luck-b bg-' + x.branch_elem + ' el-' + x.branch_elem + '">' + x.ganji.charAt(1) + '<span class="hj">' + x.ganji_hanja.charAt(1) + '</span></div></div>' +
-      '<div class="luck-meta">' + x.branch_ten_star + '<br>' + x.twelve_life + '</div></div>';
+  // 대운/세운/월운 — 프리미엄 카드
+  function luckCard(x, isNow, label, sub) {
+    return '<div class="lc' + (isNow ? " lc-now" : "") + '">' +
+      '<div class="lc-top">' + label + (sub ? '<span class="lc-sub">' + sub + '</span>' : '') + '</div>' +
+      '<div class="lc-ten">' + x.stem_ten_star + '</div>' +
+      '<div class="lc-cell bg-' + x.stem_elem + '"><span class="lc-ko el-' + x.stem_elem + '">' + x.ganji.charAt(0) + '</span><span class="lc-hj">' + x.ganji_hanja.charAt(0) + '</span></div>' +
+      '<div class="lc-cell bg-' + x.branch_elem + '"><span class="lc-ko el-' + x.branch_elem + '">' + x.ganji.charAt(1) + '</span><span class="lc-hj">' + x.ganji_hanja.charAt(1) + '</span></div>' +
+      '<div class="lc-bot"><span>' + x.branch_ten_star + '</span><span class="lc-life">' + x.twelve_life + '</span></div></div>';
   }
-  function renderLuck(title, mut, list, labelFn, nowFn) {
-    return '<div class="rcard"><h2>' + title + ' <span class="mut">' + mut + '</span></h2><div class="luck-scroll">' +
-      list.map(function (x) { return luckCard(x, nowFn ? nowFn(x) : false, labelFn(x)); }).join("") + '</div></div>';
+  function renderLuck(title, mut, list, labelFn, subFn, nowFn) {
+    return '<div class="rcard"><div class="rc-head"><h2>' + title + ' <span class="mut">' + mut + '</span></h2>' +
+      '<span class="rc-hint">좌우로 넘겨보세요</span></div><div class="luck-scroll">' +
+      list.map(function (x) { return luckCard(x, nowFn ? nowFn(x) : false, labelFn(x), subFn ? subFn(x) : ""); }).join("") + '</div></div>';
   }
 
+  // 신살·길성
+  function renderGilsin(c) {
+    var g = c.gilsin, order = ["hour", "day", "month", "year"], head = { hour: "생시", day: "생일", month: "생월", year: "생년" };
+    if (!g.list.length) return "";
+    var chips = g.list.map(function (n) { return '<span class="sin-chip">' + n + '</span>'; }).join("");
+    var rows = '<div class="sin-grid"><div class="sin-h"></div>' + order.map(function (k) { return '<div class="sin-h">' + head[k] + '</div>'; }).join("") +
+      '<div class="sin-rl">간지</div>' + order.map(function (k) { return '<div class="sin-gz el-' + c.chart[k].stem.elem + '">' + c.pillars[({ hour: "시주", day: "일주", month: "월주", year: "년주" })[k]] + '</div>'; }).join("") +
+      '<div class="sin-rl">신살</div>' + order.map(function (k) { var t = (g.byPillar[k] || []); return '<div class="sin-tags">' + (t.length ? t.map(function (x) { return '<span>' + x + '</span>'; }).join("") : '<span class="none">-</span>') + '</div>'; }).join("") + '</div>';
+    return '<div class="rcard"><h2>신살 · 길성 <span class="mut">神殺</span></h2><div class="sin-chips">' + chips + '</div>' + rows + '</div>';
+  }
+
+  // 사주풀이 (궁성 + 합충형파)
+  function renderRelations(c) {
+    var p = c.palaces;
+    var palTbl = '<div class="pal-grid"><div class="pal-h"></div>' + p.map(function (x) { return '<div class="pal-h">' + x.label + '</div>'; }).join("") +
+      '<div class="pal-rl">천간</div>' + p.map(function (x) { return '<div class="pal-c"><b>' + x.g + '</b><span>' + x.cheon + '</span></div>'; }).join("") +
+      '<div class="pal-rl">지지</div>' + p.map(function (x) { return '<div class="pal-c"><b>' + x.z + '</b><span>' + x.ji + '</span></div>'; }).join("") + '</div>';
+    var r = c.relations, groups = [["천간합", r.천간합], ["지지육합", r.지지육합], ["지지삼합", r.지지삼합], ["지지방합", r.지지방합],
+      ["천간충", r.천간충], ["지지충", r.지지충], ["형", r.형], ["파", r.파], ["해", r.해], ["원진", r.원진], ["공망", r.공망]];
+    var rel = groups.filter(function (grp) { return grp[1] && grp[1].length; }).map(function (grp) {
+      var cls = /합/.test(grp[0]) ? "rel-good" : "rel-bad";
+      return '<div class="rel-row"><span class="rel-k ' + cls + '">' + grp[0] + '</span><span class="rel-v">' + grp[1].join(" · ") + '</span></div>';
+    }).join("");
+    return '<div class="rcard"><h2>사주 풀이 <span class="mut">궁성 · 합충형파</span></h2>' + palTbl +
+      '<div class="rel-list">' + (rel || '<div class="rel-row"><span class="rel-v">두드러진 합충이 없습니다.</span></div>') + '</div></div>';
+  }
+
+  // 일진 달력
+  var iljinState = { y: 0, m: 0 };
+  function iljinInner() {
+    var ij = SajuEngine.iljinMonth(iljinState.y, iljinState.m), termBy = {};
+    ij.terms.forEach(function (t) { termBy[t.day] = t; });
+    var wd = ["일", "월", "화", "수", "목", "금", "토"];
+    var h = '<div class="rc-head"><h2>일진 달력</h2><div class="ilj-nav"><button class="ilj-prev">‹</button><span class="ilj-title">' + ij.year + '.' + pad(ij.month) + '</span><button class="ilj-next">›</button></div></div>';
+    h += '<div class="ilj-grid">';
+    wd.forEach(function (w, i) { h += '<div class="ilj-wd ' + (i === 0 ? "sun" : i === 6 ? "sat" : "") + '">' + w + '</div>'; });
+    for (var i = 0; i < ij.firstWeekday; i++) h += '<div class="ilj-cell empty"></div>';
+    ij.days.forEach(function (d) {
+      var w2 = (ij.firstWeekday + d.day - 1) % 7, term = termBy[d.day];
+      h += '<div class="ilj-cell ' + (w2 === 0 ? "sun" : w2 === 6 ? "sat" : "") + (term ? " has-term" : "") + '">' +
+        '<div class="ilj-d">' + d.day + '</div><div class="ilj-g el-' + d.stem_elem + '">' + d.ganji + '</div>' +
+        (term ? '<div class="ilj-term">' + term.name + '</div>' : "") + '</div>';
+    });
+    return h + '</div>';
+  }
+  function renderIljin() { return '<div class="rcard" id="iljinCard">' + iljinInner() + '</div>'; }
+
   function renderResult(c) {
-    var nowY = (new Date()).getFullYear();
-    var html = renderProfile(c) + renderWonguk(c) + renderAnalysis(c) + renderRelation(c) +
+    var nowY = (new Date()).getFullYear(), now = new Date();
+    iljinState = { y: now.getFullYear(), m: now.getMonth() + 1 };
+    var html = renderProfile(c) + renderWonguk(c) + renderRelations(c) + renderGilsin(c) +
+      renderAnalysis(c) + renderRelation(c) +
       '<div class="result-grid">' + renderStrength(c) + renderYongshin(c) + '</div>' +
-      renderLuck("대운", "大運 · " + c.daeun.direction + " · 대운수 " + c.daeun.daeun_su.number, c.daeun.list.slice().reverse(), function (x) { return x.age + "세"; }) +
-      renderLuck("연운", "歲運", c.seun.slice().reverse(), function (x) { return x.year; }, function (x) { return x.year === nowY; }) +
-      renderLuck("월운", c._meta.solarY + "년", c.wolun, function (x) { return x.mlabel; });
+      renderLuck("대운", "大運 · " + c.daeun.direction + " · 대운수 " + c.daeun.daeun_su.number, c.daeun.list.slice().reverse(),
+        function (x) { return x.age + "세"; }, function (x) { return x.stem_ten_star; }) +
+      renderLuck("연운", "歲運", c.seun.slice().reverse(), function (x) { return x.year; }, null, function (x) { return x.year === nowY; }) +
+      renderLuck("월운", c._meta.solarY + "년", c.wolun, function (x) { return x.mlabel; }) +
+      renderIljin();
     html += '<div class="rfoot">브라우저에서 즉시 계산 · 절기 로컬 천문계산 · 신강약/용신은 유파별 보정 대상</div>';
     $("result").innerHTML = html; window.scrollTo(0, 0);
   }
+  // 일진 월 이동
+  $("result").addEventListener("click", function (e) {
+    var prev = e.target.closest(".ilj-prev"), next = e.target.closest(".ilj-next");
+    if (!prev && !next) return;
+    if (prev) { iljinState.m--; if (iljinState.m < 1) { iljinState.m = 12; iljinState.y--; } }
+    else { iljinState.m++; if (iljinState.m > 12) { iljinState.m = 1; iljinState.y++; } }
+    var el = $("iljinCard"); if (el) el.innerHTML = iljinInner();
+  });
 
   // ── 화면/저장 ──
   function showScreen(w) { $("inputScreen").classList.toggle("hidden", w !== "input"); $("resultScreen").classList.toggle("hidden", w !== "result"); window.scrollTo(0, 0); }
