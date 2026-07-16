@@ -186,8 +186,8 @@
   function donut(items, centerText, centerColor) {
     var circ = 2 * Math.PI * 60, off = 0;
     var s = '<svg class="donut" viewBox="0 0 150 150"><circle cx="75" cy="75" r="60" fill="none" stroke="#F2F4F6" stroke-width="22"/>';
-    items.forEach(function (it) { if (it.pct <= 0) return; var len = circ * it.pct / 100;
-      s += '<circle cx="75" cy="75" r="60" fill="none" stroke="' + it.color + '" stroke-width="22" stroke-dasharray="' + len + ' ' + (circ - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 75 75)"/>'; off += len; });
+    items.forEach(function (it) { if (it.pct <= 0) return; var len = circ * it.pct / 100, seg = Math.max(len - 3, 1);
+      s += '<circle cx="75" cy="75" r="60" fill="none" stroke="' + it.color + '" stroke-width="20" stroke-dasharray="' + seg + ' ' + (circ - seg) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 75 75)"/>'; off += len; });
     s += '<text x="75" y="75" text-anchor="middle" dominant-baseline="central" class="donut-center" fill="' + centerColor + '">' + centerText + '</text></svg>';
     return s;
   }
