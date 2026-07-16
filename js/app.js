@@ -387,6 +387,25 @@
   var lb2 = $("loadBtn2"); if (lb2) lb2.addEventListener("click", doLoad);
   var gb = $("ganjiBtn"); if (gb) gb.addEventListener("click", function () { toast("자 23~01 · 축 01~03 · 인 03~05 · 묘 05~07 · 진 07~09 · 사 09~11 · 오 11~13 · 미 13~15 · 신 15~17 · 유 17~19 · 술 19~21 · 해 21~23"); });
 
+  // 이미지로 저장
+  $("imgBtn").addEventListener("click", function () {
+    if (!lastChart || typeof htmlToImage === "undefined") { toast("잠시 후 다시 시도해주세요"); return; }
+    var btn = this, el = $("result"), prevW = el.style.width, prevTxt = btn.textContent;
+    btn.disabled = true; btn.textContent = "저장 중…";
+    el.classList.add("capturing");
+    el.style.width = "760px";
+    setTimeout(function () {
+      htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: "#F7F8FA", cacheBust: true })
+        .then(function (url) {
+          var a = document.createElement("a");
+          a.download = (lastChart._meta.name || "만세력").replace(/\s/g, "") + "_만세력.png";
+          a.href = url; a.click(); toast("이미지로 저장했어요");
+        })
+        .catch(function (e) { toast("이미지 저장 실패"); })
+        .then(function () { el.classList.remove("capturing"); el.style.width = prevW; btn.disabled = false; btn.textContent = prevTxt; });
+    }, 80);
+  });
+
   var toastTimer;
   function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200); }
 

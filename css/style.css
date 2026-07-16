@@ -120,10 +120,21 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .disclaimer{text-align:center;color:var(--g400);font-size:13px;margin:26px auto 0;max-width:660px;line-height:1.7}
 
 /* ── 결과 ── */
-.result-bar{display:flex;align-items:center;justify-content:space-between;padding:22px 4px 10px;position:sticky;top:64px;z-index:10;background:linear-gradient(180deg,var(--g50) 60%,transparent)}
-.back,.save{background:none;border:0;font-size:16px;font-weight:700;cursor:pointer;padding:8px 4px}
-.back{color:var(--g600)}.back:hover{color:var(--g900)}
-.save{color:var(--blue)}
+.result-bar{display:flex;align-items:center;justify-content:space-between;padding:20px 4px 10px;position:sticky;top:64px;z-index:10;background:linear-gradient(180deg,#F7F8FA 62%,transparent)}
+.back{background:none;border:0;font-size:16px;font-weight:700;cursor:pointer;padding:8px 4px;color:var(--g600)}
+.back:hover{color:var(--g900)}
+.rb-actions{display:flex;gap:8px;align-items:center}
+.rb-btn{background:var(--g100);border:0;border-radius:11px;padding:10px 15px;font-size:14px;font-weight:700;color:var(--g700);cursor:pointer;transition:.15s}
+.rb-btn:hover{background:var(--g200)}
+.rb-btn.save{color:#fff;background:var(--blue)}
+.rb-btn.save:hover{background:var(--blue-d)}
+.rb-btn:disabled{opacity:.55;cursor:default}
+/* 이미지 캡처 시 전체 카드 보이도록 */
+.capturing{max-width:none !important;padding-bottom:8px}
+.capturing .luck-scroll{display:grid !important;grid-auto-flow:column !important;grid-auto-columns:minmax(0,1fr) !important;overflow:visible !important}
+.capturing .lc{flex:none !important}
+.capturing .result-grid{grid-template-columns:1.5fr 1fr !important}
+.capturing .analysis-grid{grid-template-columns:1fr 1fr !important}
 
 #result > *{animation:fadeUp .5s ease both}
 #result > *:nth-child(1){animation-delay:.02s}
