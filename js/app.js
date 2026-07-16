@@ -210,41 +210,59 @@
     return '<div class="rcard"><h2>오행 · 십성 분석</h2><div class="analysis-grid">' + left + right + '</div></div>';
   }
 
-  // 오행 관계도(펜타곤)
+  // 오행 관계도(펜타곤) — 프리미엄
+  var GRAD = { "목": ["#1BC97F", "#12A768"], "화": ["#F1575D", "#DE3B42"], "토": ["#EC9418", "#CE7A06"], "금": ["#98A2AE", "#79838F"], "수": ["#4794FF", "#2C74E6"] };
   function renderRelation(c) {
-    var g = c.groups; // [비겁,식상,재성,관성,인성]
-    var cx = 210, cy = 195, R = 128, ang = [-90, -18, 54, 126, 198];
+    var g = c.groups, W = 460, H = 400, cx = 230, cy = 196, R = 122, ang = [-90, -18, 54, 126, 198];
     var pos = ang.map(function (a) { var r = a * Math.PI / 180; return [cx + R * Math.cos(r), cy + R * Math.sin(r)]; });
-    var s = '<svg class="relation" viewBox="0 0 420 400">';
-    // 극(剋) 대각선 — red
-    var kg = [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]];
-    kg.forEach(function (e) { s += '<line x1="' + pos[e[0]][0] + '" y1="' + pos[e[0]][1] + '" x2="' + pos[e[1]][0] + '" y2="' + pos[e[1]][1] + '" stroke="#F04452" stroke-width="1.5" opacity=".5"/>'; });
-    // 생(生) 둘레 — blue
-    for (var i = 0; i < 5; i++) { var j = (i + 1) % 5;
-      s += '<line x1="' + pos[i][0] + '" y1="' + pos[i][1] + '" x2="' + pos[j][0] + '" y2="' + pos[j][1] + '" stroke="#3182F6" stroke-width="2" opacity=".55"/>'; }
+    var rad = g.map(function (n) { return Math.max(31, Math.min(55, 31 + n.pct * 0.5)); });
+    function edge(i, j) { var dx = pos[j][0] - pos[i][0], dy = pos[j][1] - pos[i][1], L = Math.hypot(dx, dy);
+      return { sx: pos[i][0] + dx / L * (rad[i] + 3), sy: pos[i][1] + dy / L * (rad[i] + 3), ex: pos[j][0] - dx / L * (rad[j] + 8), ey: pos[j][1] - dy / L * (rad[j] + 8) }; }
+    var s = '<svg class="relation" viewBox="0 0 ' + W + ' ' + H + '"><defs>' +
+      '<marker id="ag" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3182F6"/></marker>' +
+      '<marker id="ak" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#F04452"/></marker>' +
+      '<filter id="ns" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(23,33,58,.18)"/></filter>';
+    Object.keys(GRAD).forEach(function (el) { s += '<linearGradient id="grad-' + el + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="' + GRAD[el][0] + '"/><stop offset="1" stop-color="' + GRAD[el][1] + '"/></linearGradient>'; });
+    s += '</defs>';
+    // 극(剋) — red 점선 화살표
+    [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]].forEach(function (e) { var p = edge(e[0], e[1]);
+      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#F04452" stroke-width="1.6" stroke-dasharray="3 5" opacity=".4" marker-end="url(#ak)"/>'; });
+    // 생(生) — blue 화살표
+    for (var i = 0; i < 5; i++) { var j = (i + 1) % 5, p = edge(i, j);
+      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#3182F6" stroke-width="2.6" stroke-linecap="round" opacity=".5" marker-end="url(#ag)"/>'; }
     // 노드
-    g.forEach(function (n, i) { var col = ELEM_HEX[n.elem];
-      s += '<g class="rel-node"><circle cx="' + pos[i][0] + '" cy="' + pos[i][1] + '" r="40" fill="#fff" stroke="' + col + '" stroke-width="2.5"/>' +
-        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] - 8) + '" text-anchor="middle" font-size="15" fill="' + col + '">' + n.elem + '</text>' +
-        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] + 8) + '" text-anchor="middle" font-size="11" fill="#8B95A1">' + n.key + '</text>' +
-        '<text x="' + pos[i][0] + '" y="' + (pos[i][1] + 24) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#191F28">' + n.pct + '%</text></g>'; });
+    g.forEach(function (n, i) { var rr = rad[i], x = pos[i][0], y = pos[i][1], fs = Math.round(rr * 0.62);
+      s += '<g filter="url(#ns)">';
+      if (i === 0) s += '<circle cx="' + x + '" cy="' + y + '" r="' + (rr + 5) + '" fill="none" stroke="#3182F6" stroke-width="2" stroke-dasharray="3 4" opacity=".9"/>';
+      s += '<circle cx="' + x + '" cy="' + y + '" r="' + rr + '" fill="url(#grad-' + n.elem + ')"/>' +
+        '<text x="' + x + '" y="' + (y - rr * 0.16) + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="#fff" style="text-shadow:0 1px 2px rgba(0,0,0,.18)">' + n.elem + '</text>' +
+        '<text x="' + x + '" y="' + (y + rr * 0.28) + '" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.9)" font-weight="600">' + n.key + '</text>' +
+        '<text x="' + x + '" y="' + (y + rr * 0.62) + '" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff">' + n.pct + '%</text>';
+      if (i === 0) s += '<g><rect x="' + (x - 15) + '" y="' + (y - rr - 22) + '" width="30" height="19" rx="9" fill="#3182F6"/><text x="' + x + '" y="' + (y - rr - 9) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">나</text></g>';
+      s += '</g>'; });
     s += '</svg>';
     return '<div class="rcard"><h2>오행 관계도 <span class="mut">生 · 剋</span></h2>' + s +
-      '<div class="rel-legend"><span class="g">→ 생(生)</span><span class="k">→ 극(剋)</span></div></div>';
+      '<div class="rel-legend"><span class="g">→ 생(生)</span><span class="k">⇢ 극(剋)</span></div></div>';
   }
 
   // 신강약
   var DIST = [5, 16, 19.5, 10, 25, 13, 5, 1.5];
   function strengthGraph(bi) {
-    var W = 460, H = 176, pad = 26, n = DIST.length, max = Math.max.apply(null, DIST), bands = SajuEngine.BANDS;
-    var xs = function (i) { return pad + (W - 2 * pad) * i / (n - 1); }, ys = function (v) { return H - 34 - (H - 58) * v / max; };
-    var pts = DIST.map(function (v, i) { return xs(i) + "," + ys(v); }).join(" ");
-    var s = '<svg class="str-graph" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">';
-    DIST.forEach(function (v, i) { s += '<rect x="' + (xs(i) - 19) + '" y="22" width="38" height="' + (H - 56) + '" rx="6" fill="#F2F4F6"/>'; });
-    s += '<polyline points="' + pts + '" fill="none" stroke="#4E5968" stroke-width="2.4" stroke-linejoin="round"/>';
-    s += '<circle cx="' + xs(bi) + '" cy="' + ys(DIST[bi]) + '" r="6" fill="#3182F6"/>';
-    s += '<text class="band-me" x="' + xs(bi) + '" y="' + (ys(DIST[bi]) - 11) + '" text-anchor="middle">나</text>';
-    bands.forEach(function (b, i) { s += '<text class="band-label" x="' + xs(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + b + '</text>'; });
+    var W = 480, H = 196, padX = 26, padT = 32, padB = 34, n = DIST.length, max = Math.max.apply(null, DIST), bands = SajuEngine.BANDS;
+    var xs = function (i) { return padX + (W - 2 * padX) * i / (n - 1); }, ys = function (v) { return H - padB - (H - padT - padB) * v / max; };
+    var pts = DIST.map(function (v, i) { return [xs(i), ys(v)]; });
+    var line = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    var area = line + " L" + xs(n - 1).toFixed(1) + " " + (H - padB) + " L" + xs(0).toFixed(1) + " " + (H - padB) + " Z";
+    var bx = xs(bi), by = ys(DIST[bi]);
+    var s = '<svg class="str-graph" viewBox="0 0 ' + W + ' ' + H + '"><defs>' +
+      '<linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3182F6" stop-opacity=".22"/><stop offset="1" stop-color="#3182F6" stop-opacity="0"/></linearGradient>' +
+      '<filter id="sgd" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="2" stdDeviation="3.5" flood-color="rgba(49,130,246,.55)"/></filter></defs>';
+    s += '<path d="' + area + '" fill="url(#sg)"/>';
+    s += '<path d="' + line + '" fill="none" stroke="#3182F6" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>';
+    s += '<line x1="' + bx.toFixed(1) + '" y1="' + by.toFixed(1) + '" x2="' + bx.toFixed(1) + '" y2="' + (H - padB) + '" stroke="#3182F6" stroke-width="1.4" stroke-dasharray="3 4" opacity=".5"/>';
+    s += '<circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="7" fill="#3182F6" filter="url(#sgd)"/><circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="3" fill="#fff"/>';
+    s += '<text class="band-me" x="' + bx.toFixed(1) + '" y="' + (by - 13).toFixed(1) + '" text-anchor="middle">나</text>';
+    bands.forEach(function (b, i) { s += '<text x="' + xs(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10.5" font-weight="' + (i === bi ? 800 : 500) + '" fill="' + (i === bi ? "#3182F6" : "#8B95A1") + '">' + b + '</text>'; });
     return s + '</svg>';
   }
   function renderStrength(c) {
@@ -259,19 +277,22 @@
     return '<div class="rcard"><h2>용신 <span class="mut">用神</span></h2><div class="yong-list">' + it("조후용신", y.johu) + it("억부용신", y.eokbu) + '</div></div>';
   }
 
-  // 대운/세운/월운 — 프리미엄 카드
-  function luckCard(x, isNow, label, sub) {
+  // 대운/세운/월운 — 정사각형 솔리드 타일
+  function tile(ko, hj, elem) {
+    return '<div class="lc-tile tile-' + elem + '"><span class="lc-ko">' + ko + '</span><span class="lc-hj">' + hj + '</span></div>';
+  }
+  function luckCard(x, isNow, label) {
     return '<div class="lc' + (isNow ? " lc-now" : "") + '">' +
-      '<div class="lc-top">' + label + (sub ? '<span class="lc-sub">' + sub + '</span>' : '') + '</div>' +
+      '<div class="lc-top">' + label + '</div>' +
       '<div class="lc-ten">' + x.stem_ten_star + '</div>' +
-      '<div class="lc-cell bg-' + x.stem_elem + '"><span class="lc-ko el-' + x.stem_elem + '">' + x.ganji.charAt(0) + '</span><span class="lc-hj">' + x.ganji_hanja.charAt(0) + '</span></div>' +
-      '<div class="lc-cell bg-' + x.branch_elem + '"><span class="lc-ko el-' + x.branch_elem + '">' + x.ganji.charAt(1) + '</span><span class="lc-hj">' + x.ganji_hanja.charAt(1) + '</span></div>' +
+      tile(x.ganji.charAt(0), x.ganji_hanja.charAt(0), x.stem_elem) +
+      tile(x.ganji.charAt(1), x.ganji_hanja.charAt(1), x.branch_elem) +
       '<div class="lc-bot"><span>' + x.branch_ten_star + '</span><span class="lc-life">' + x.twelve_life + '</span></div></div>';
   }
   function renderLuck(title, mut, list, labelFn, subFn, nowFn) {
     return '<div class="rcard"><div class="rc-head"><h2>' + title + ' <span class="mut">' + mut + '</span></h2>' +
       '<span class="rc-hint">좌우로 넘겨보세요</span></div><div class="luck-scroll">' +
-      list.map(function (x) { return luckCard(x, nowFn ? nowFn(x) : false, labelFn(x), subFn ? subFn(x) : ""); }).join("") + '</div></div>';
+      list.map(function (x) { return luckCard(x, nowFn ? nowFn(x) : false, labelFn(x)); }).join("") + '</div></div>';
   }
 
   // 신살·길성

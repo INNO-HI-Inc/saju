@@ -199,8 +199,8 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .lv-적정{background:var(--wood-bg);color:var(--wood)}.lv-부족{background:var(--g100);color:var(--g500)}
 
 /* 관계도 */
-.relation{width:100%;max-width:440px;margin:0 auto;display:block}
-.rel-legend{display:flex;gap:20px;justify-content:center;margin-top:8px;font-size:13px;font-weight:700}
+.relation{width:100%;max-width:480px;margin:0 auto;display:block}
+.rel-legend{display:flex;gap:22px;justify-content:center;margin-top:6px;font-size:13px;font-weight:700}
 .rel-legend .g{color:var(--blue)}.rel-legend .k{color:var(--fire)}
 
 /* 신강약 */
@@ -209,7 +209,7 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .deuk.on{background:var(--blue);color:#fff}
 .str-msg{font-size:15px;margin:2px 0 14px;color:var(--g700)}
 .str-msg b{font-weight:800;color:var(--g900)}
-.str-graph{width:100%;height:200px}
+.str-graph{width:100%;height:210px;display:block}
 .str-graph .band-label{font-size:10px;fill:var(--g500)}
 .str-graph .band-me{font-size:12px;font-weight:800;fill:var(--blue)}
 
@@ -247,20 +247,26 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .rc-head h2{margin:0}
 .rc-hint{font-size:12px;color:var(--g400);font-weight:600;white-space:nowrap}
 
-/* 프리미엄 대운/연운/월운 카드 */
+/* 대운/연운/월운 — 정사각형 솔리드 타일 */
 .luck-scroll{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
-.lc{background:var(--g50);border-radius:16px;padding:11px 5px;text-align:center;transition:.16s cubic-bezier(.2,.8,.2,1);border:1px solid transparent;min-width:0}
-.lc:hover{transform:translateY(-4px);box-shadow:var(--sh);background:#fff;border-color:var(--g100)}
-.lc-top{font-size:12.5px;font-weight:800;color:var(--g800);line-height:1.2}
-.lc-sub{display:block;font-size:10px;font-weight:700;color:var(--g400);margin-top:1px}
-.lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:5px 0 6px;line-height:1.3;white-space:nowrap}
-.lc-cell{border-radius:11px;padding:8px 0;margin:4px 0;display:flex;align-items:baseline;justify-content:center;gap:2px}
-.lc-ko{font-size:23px;font-weight:800;letter-spacing:-.02em}
-.lc-hj{font-size:12px;opacity:.55;font-weight:700}
+.lc{background:var(--white);border-radius:16px;padding:10px 6px 11px;text-align:center;transition:.16s cubic-bezier(.2,.8,.2,1);border:1px solid var(--g100);min-width:0}
+.lc:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.lc-top{font-size:12.5px;font-weight:800;color:var(--g800);line-height:1.2;font-variant-numeric:tabular-nums}
+.lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:4px 0 6px;line-height:1.3;white-space:nowrap}
+.lc-tile{aspect-ratio:1/1;border-radius:13px;margin:5px 0;display:flex;align-items:center;justify-content:center;gap:1px;
+  color:#fff;position:relative;box-shadow:inset 0 -2px 6px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.18)}
+.lc-ko{font-size:26px;font-weight:800;letter-spacing:-.03em;text-shadow:0 1px 2px rgba(0,0,0,.14)}
+.lc-hj{font-size:11px;opacity:.82;font-weight:700;align-self:flex-start;margin-top:9px}
 .lc-bot{margin-top:7px;font-size:10.5px;color:var(--g500);line-height:1.55;display:flex;flex-direction:column;gap:1px;font-weight:500}
 .lc-life{font-weight:700;color:var(--g600)}
-.lc-now{background:#fff;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-glow)}
+.lc-now{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow),var(--sh)}
 .lc-now .lc-top{color:var(--blue)}
+/* 오행 솔리드 타일 색 */
+.tile-목{background:linear-gradient(160deg,#1BC97F,#12A768)}
+.tile-화{background:linear-gradient(160deg,#F1575D,#DE3B42)}
+.tile-토{background:linear-gradient(160deg,#EC9418,#CE7A06)}
+.tile-금{background:linear-gradient(160deg,#98A2AE,#79838F)}
+.tile-수{background:linear-gradient(160deg,#4794FF,#2C74E6)}
 
 /* 신살·길성 */
 .sin-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
@@ -318,7 +324,8 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
   .wonguk-grid{grid-template-columns:36px repeat(4,1fr);gap:5px}
   .wg-cell{padding:11px 2px;border-radius:12px}.wg-big{font-size:27px}.wg-big .hj{font-size:15px}
   .luck-scroll{display:flex;overflow-x:auto;gap:8px;padding-bottom:10px;scroll-snap-type:x proximity}
-  .lc{flex:0 0 68px;scroll-snap-align:start}
+  .lc{flex:0 0 74px;scroll-snap-align:start}
+  .lc-ko{font-size:24px}
   .nav-link{display:none}
   .dob-row{grid-template-columns:1fr 1fr;gap:8px}
   .dob-row .select-wrap{grid-column:1 / -1}
