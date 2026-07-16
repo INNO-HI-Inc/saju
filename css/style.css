@@ -21,10 +21,8 @@
 html,body{margin:0;padding:0}
 body{
   font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;
-  background:var(--g50);color:var(--g900);-webkit-font-smoothing:antialiased;
+  background:#F7F8FA;color:var(--g900);-webkit-font-smoothing:antialiased;
   line-height:1.5;letter-spacing:-.015em;
-  background-image:radial-gradient(1100px 520px at 50% -8%,rgba(49,130,246,.06),transparent 70%);
-  background-attachment:fixed;
 }
 /* 데이터 숫자는 등폭 정렬 */
 .hs-v,.donut-center,.pct-table td,.lc-ko,.lc-top,.ilj-d,.ilj-g,.str-graph text,.band-me,.pdate,.deuk,.rel-v,.profile-name{font-variant-numeric:tabular-nums}
@@ -112,9 +110,9 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .city-hint.gray{color:var(--g400);font-weight:500}
 
 /* 버튼 */
-.btn-primary{width:100%;padding:18px;border:0;border-radius:18px;font-size:17px;font-weight:800;
-  background:linear-gradient(180deg,var(--blue-l),var(--blue));color:#fff;cursor:pointer;transition:.15s;box-shadow:0 6px 18px var(--blue-glow)}
-.btn-primary:hover{filter:brightness(1.03);transform:translateY(-1px);box-shadow:0 10px 24px var(--blue-glow)}
+.btn-primary{width:100%;padding:18px;border:0;border-radius:16px;font-size:17px;font-weight:800;
+  background:var(--blue);color:#fff;cursor:pointer;transition:.15s}
+.btn-primary:hover{background:var(--blue-d)}
 .btn-primary:active{transform:translateY(0) scale(.99)}
 .btn-primary:disabled{background:var(--g200);color:var(--g400);cursor:default;box-shadow:none;transform:none;filter:none}
 .btn-ghost{width:100%;padding:16px;border:0;border-radius:18px;font-size:15px;font-weight:700;background:var(--g100);color:var(--g600);cursor:pointer;margin-top:11px;transition:.15s}
@@ -144,13 +142,11 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .result-grid .rcard{margin-bottom:0}
 
 /* 프로필 — 히어로 */
-.hero-card{background:linear-gradient(180deg,#FFFFFF,#FAFCFF);border:1px solid rgba(49,130,246,.12);
-  box-shadow:0 10px 34px rgba(49,130,246,.07),0 1px 2px rgba(23,33,58,.04);padding:30px 30px 26px;border-radius:26px}
+.hero-card{background:var(--white);border:1px solid var(--g100);box-shadow:var(--sh);padding:30px 30px 26px;border-radius:24px}
 .profile-head{display:flex;gap:18px;align-items:center}
 .profile-info{min-width:0}
-.avatar{width:66px;height:66px;border-radius:22px;background:linear-gradient(140deg,#EAF2FE,#DBE9FE);
-  display:flex;align-items:center;justify-content:center;font-size:37px;flex:0 0 auto;font-family:var(--emoji);line-height:1;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 12px rgba(49,130,246,.12)}
+.avatar{width:66px;height:66px;border-radius:20px;background:var(--blue-bg);
+  display:flex;align-items:center;justify-content:center;font-size:37px;flex:0 0 auto;font-family:var(--emoji);line-height:1}
 .profile-name{font-size:25px;font-weight:800;letter-spacing:-.03em}
 .profile-nick{font-size:14px;color:var(--g600);font-weight:600;margin-top:5px;line-height:1.5}
 .profile-nick .tti{color:var(--blue);font-weight:800}
@@ -253,20 +249,19 @@ input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-ca
 .lc:hover{transform:translateY(-4px);box-shadow:var(--sh)}
 .lc-top{font-size:12.5px;font-weight:800;color:var(--g800);line-height:1.2;font-variant-numeric:tabular-nums}
 .lc-ten{font-size:11px;color:var(--g500);font-weight:600;margin:4px 0 6px;line-height:1.3;white-space:nowrap}
-.lc-tile{aspect-ratio:1/1;border-radius:13px;margin:5px 0;display:flex;align-items:center;justify-content:center;gap:1px;
-  color:#fff;position:relative;box-shadow:inset 0 -2px 6px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.18)}
-.lc-ko{font-size:26px;font-weight:800;letter-spacing:-.03em;text-shadow:0 1px 2px rgba(0,0,0,.14)}
-.lc-hj{font-size:11px;opacity:.82;font-weight:700;align-self:flex-start;margin-top:9px}
-.lc-bot{margin-top:7px;font-size:10.5px;color:var(--g500);line-height:1.55;display:flex;flex-direction:column;gap:1px;font-weight:500}
+.lc-tile{aspect-ratio:1/1;border-radius:14px;margin:5px 0;display:flex;align-items:center;justify-content:center;gap:1px;color:#fff}
+.lc-ko{font-size:26px;font-weight:800;letter-spacing:-.03em}
+.lc-hj{font-size:11px;opacity:.72;font-weight:600;align-self:flex-start;margin-top:9px}
+.lc-bot{margin-top:8px;font-size:10.5px;color:var(--g500);line-height:1.55;display:flex;flex-direction:column;gap:1px;font-weight:500}
 .lc-life{font-weight:700;color:var(--g600)}
-.lc-now{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow),var(--sh)}
+.lc-now{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
 .lc-now .lc-top{color:var(--blue)}
-/* 오행 솔리드 타일 색 */
-.tile-목{background:linear-gradient(160deg,#1BC97F,#12A768)}
-.tile-화{background:linear-gradient(160deg,#F1575D,#DE3B42)}
-.tile-토{background:linear-gradient(160deg,#EC9418,#CE7A06)}
-.tile-금{background:linear-gradient(160deg,#98A2AE,#79838F)}
-.tile-수{background:linear-gradient(160deg,#4794FF,#2C74E6)}
+/* 오행 플랫 솔리드 타일 */
+.tile-목{background:#1AAE7A}
+.tile-화{background:#EC5A63}
+.tile-토{background:#E0982B}
+.tile-금{background:#98A2AE}
+.tile-수{background:#4A8DF0}
 
 /* 신살·길성 */
 .sin-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}

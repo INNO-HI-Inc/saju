@@ -7,8 +7,8 @@
   fetch("js/lunar-table.json").then(function (r) { return r.json(); })
     .then(function (j) { LUNAR = j; }).catch(function () { LUNAR = null; });
 
-  // 오행/십성 색 (토스 팔레트)
-  var ELEM_HEX = { "목": "#15C47E", "화": "#F04452", "토": "#FF9500", "금": "#8B95A1", "수": "#3182F6" };
+  // 오행/십성 색 (플랫·정제)
+  var ELEM_HEX = { "목": "#1AAE7A", "화": "#EC5A63", "토": "#E0982B", "금": "#98A2AE", "수": "#3182F6" };
   var TEN_GROUP = { "비견": "비겁", "겁재": "비겁", "식신": "식상", "상관": "식상",
     "편재": "재성", "정재": "재성", "편관": "관성", "정관": "관성", "편인": "인성", "정인": "인성" };
   var GROUP_HEX = { "비겁": "#3182F6", "식상": "#15C47E", "재성": "#FF9500", "관성": "#F04452", "인성": "#7C5CFC" };
@@ -210,35 +210,31 @@
     return '<div class="rcard"><h2>오행 · 십성 분석</h2><div class="analysis-grid">' + left + right + '</div></div>';
   }
 
-  // 오행 관계도(펜타곤) — 프리미엄
-  var GRAD = { "목": ["#1BC97F", "#12A768"], "화": ["#F1575D", "#DE3B42"], "토": ["#EC9418", "#CE7A06"], "금": ["#98A2AE", "#79838F"], "수": ["#4794FF", "#2C74E6"] };
+  // 오행 관계도(펜타곤) — 플랫
   function renderRelation(c) {
-    var g = c.groups, W = 460, H = 400, cx = 230, cy = 196, R = 122, ang = [-90, -18, 54, 126, 198];
+    var g = c.groups, W = 460, H = 396, cx = 230, cy = 194, R = 120, ang = [-90, -18, 54, 126, 198];
     var pos = ang.map(function (a) { var r = a * Math.PI / 180; return [cx + R * Math.cos(r), cy + R * Math.sin(r)]; });
-    var rad = g.map(function (n) { return Math.max(31, Math.min(55, 31 + n.pct * 0.5)); });
+    var rad = g.map(function (n) { return Math.max(31, Math.min(54, 31 + n.pct * 0.48)); });
     function edge(i, j) { var dx = pos[j][0] - pos[i][0], dy = pos[j][1] - pos[i][1], L = Math.hypot(dx, dy);
       return { sx: pos[i][0] + dx / L * (rad[i] + 3), sy: pos[i][1] + dy / L * (rad[i] + 3), ex: pos[j][0] - dx / L * (rad[j] + 8), ey: pos[j][1] - dy / L * (rad[j] + 8) }; }
     var s = '<svg class="relation" viewBox="0 0 ' + W + ' ' + H + '"><defs>' +
       '<marker id="ag" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3182F6"/></marker>' +
-      '<marker id="ak" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#F04452"/></marker>' +
-      '<filter id="ns" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="rgba(23,33,58,.18)"/></filter>';
-    Object.keys(GRAD).forEach(function (el) { s += '<linearGradient id="grad-' + el + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="' + GRAD[el][0] + '"/><stop offset="1" stop-color="' + GRAD[el][1] + '"/></linearGradient>'; });
-    s += '</defs>';
-    // 극(剋) — red 점선 화살표
+      '<marker id="ak" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#E0868C"/></marker></defs>';
+    // 극(剋) — 연한 점선 화살표
     [[0, 2], [2, 4], [4, 1], [1, 3], [3, 0]].forEach(function (e) { var p = edge(e[0], e[1]);
-      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#F04452" stroke-width="1.6" stroke-dasharray="3 5" opacity=".4" marker-end="url(#ak)"/>'; });
+      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#E0868C" stroke-width="1.4" stroke-dasharray="2 5" opacity=".55" marker-end="url(#ak)"/>'; });
     // 생(生) — blue 화살표
     for (var i = 0; i < 5; i++) { var j = (i + 1) % 5, p = edge(i, j);
-      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#3182F6" stroke-width="2.6" stroke-linecap="round" opacity=".5" marker-end="url(#ag)"/>'; }
-    // 노드
-    g.forEach(function (n, i) { var rr = rad[i], x = pos[i][0], y = pos[i][1], fs = Math.round(rr * 0.62);
-      s += '<g filter="url(#ns)">';
-      if (i === 0) s += '<circle cx="' + x + '" cy="' + y + '" r="' + (rr + 5) + '" fill="none" stroke="#3182F6" stroke-width="2" stroke-dasharray="3 4" opacity=".9"/>';
-      s += '<circle cx="' + x + '" cy="' + y + '" r="' + rr + '" fill="url(#grad-' + n.elem + ')"/>' +
-        '<text x="' + x + '" y="' + (y - rr * 0.16) + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="#fff" style="text-shadow:0 1px 2px rgba(0,0,0,.18)">' + n.elem + '</text>' +
-        '<text x="' + x + '" y="' + (y + rr * 0.28) + '" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.9)" font-weight="600">' + n.key + '</text>' +
+      s += '<line x1="' + p.sx + '" y1="' + p.sy + '" x2="' + p.ex + '" y2="' + p.ey + '" stroke="#3182F6" stroke-width="2.4" stroke-linecap="round" opacity=".45" marker-end="url(#ag)"/>'; }
+    // 노드(플랫)
+    g.forEach(function (n, i) { var rr = rad[i], x = pos[i][0], y = pos[i][1], fs = Math.round(rr * 0.6);
+      s += '<g>';
+      if (i === 0) s += '<circle cx="' + x + '" cy="' + y + '" r="' + (rr + 5) + '" fill="none" stroke="#3182F6" stroke-width="1.6" stroke-dasharray="2 4" opacity=".85"/>';
+      s += '<circle cx="' + x + '" cy="' + y + '" r="' + rr + '" fill="' + ELEM_HEX[n.elem] + '"/>' +
+        '<text x="' + x + '" y="' + (y - rr * 0.16) + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="#fff">' + n.elem + '</text>' +
+        '<text x="' + x + '" y="' + (y + rr * 0.28) + '" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.92)" font-weight="600">' + n.key + '</text>' +
         '<text x="' + x + '" y="' + (y + rr * 0.62) + '" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff">' + n.pct + '%</text>';
-      if (i === 0) s += '<g><rect x="' + (x - 15) + '" y="' + (y - rr - 22) + '" width="30" height="19" rx="9" fill="#3182F6"/><text x="' + x + '" y="' + (y - rr - 9) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">나</text></g>';
+      if (i === 0) s += '<g><rect x="' + (x - 15) + '" y="' + (y - rr - 23) + '" width="30" height="19" rx="9" fill="#3182F6"/><text x="' + x + '" y="' + (y - rr - 10) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">나</text></g>';
       s += '</g>'; });
     s += '</svg>';
     return '<div class="rcard"><h2>오행 관계도 <span class="mut">生 · 剋</span></h2>' + s +
