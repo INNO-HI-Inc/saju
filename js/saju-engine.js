@@ -249,9 +249,8 @@
   }
   function daeunList(pil,gender,count){
     count=count||10;var dmI=pil.day_master_idx,forward=luckDir(pil.year.stem_idx,gender);
-    var num=daeunNumber(pil.meta.birth_ms,new Date(pil.meta.birth_ms).getUTCFullYear()+ (new Date(pil.meta.birth_ms).getUTCMonth()>=0?0:0), forward);
     var y=new Date(pil.meta.birth_ms+KST_MS).getUTCFullYear();
-    num=daeunNumber(pil.meta.birth_ms,y,forward);
+    var num=daeunNumber(pil.meta.birth_ms,y,forward);
     var mi60=idx60(pil.month.stem_idx,pil.month.branch_idx),step=forward?1:-1,out=[];
     for(var k=0;k<count;k++){var i60=mod(mi60+step*(k+1),60),s=i60%10,b=i60%12;
       out.push({age:num.number+k*10,ganji:S_KO[s]+B_KO[b],ganji_hanja:S_HJ[s]+B_HJ[b],
@@ -438,7 +437,6 @@
     var dmI=pil.day_master_idx,sinBase=pil.year.branch_idx;
     var chart={};["hour","day","month","year"].forEach(function(k){chart[k]=pillarView(pil,k,dmI,sinBase);});
     var st=strength(pil);
-    var thisYear=new Date().getFullYear? y:y; // seun 기준: 출생연도부터
     return {
       input:{solar:y+"-"+pad(mo)+"-"+pad(d)+" "+pad(h)+":"+pad(mi),gender:gender,late_zi:lateZi},
       day_master:{ko:pil.day_master,hanja:S_HJ[dmI],elem:S_EL[dmI],sign:S_YANG[dmI]?"+":"-"},
